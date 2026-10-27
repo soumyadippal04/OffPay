@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.2 - 2026-10-27
+
+- Publish the OffPay-branded Android application (`com.offpay.app`) with brighter blue gradients and a new launcher icon.
+- Increase Android versionCode to 7 for updates to previous OffPay development builds.
+
 ### OffPay rebrand — 2026-10-27
 
 - Renamed the app, Android package, source directories, resources, documentation and CI paths to OffPay (`com.offpay.app`).
