@@ -1,13 +1,13 @@
 # OffPay APK downloads
 
-This distribution branch contains signed OffPay APKs. Application source is maintained on the main branch.
+This branch distributes signed APKs. Source is on the main branch.
 
-## OffPay 1.0.2
+## OffPay 1.0.3
 
-- File: OffPay-1.0.2-release.apk
-- Android 10+; ARM64 and 32-bit ARM.
-- Application ID: com.offpay.app; version code 7.
-- Signed with the local development key used for earlier OffPay development builds, not an established official publisher key.
-- Build, signature, alignment, unit tests, lint, static analysis and coverage verification passed. Physical-device launch and payment testing remain outstanding.
+- Requests Phone, Camera, incoming SMS and Contacts consent once on first setup. Users must approve the Android prompts; declining does not block setup.
+- Settings → Appearance → Dark mode switches between dark and light backgrounds and remembers the selection.
+- Android 10+; ARM64 and 32-bit ARM; application ID com.offpay.app; version code 8.
+- Signed with the same local development key as OffPay 1.0.2, not an established official publisher key.
+- Debug/release builds, 164 tests per variant, lint, detekt, coverage, APK signature and alignment checks passed. Physical-device UI and payment checks remain outstanding.
 
-Use the included SHA-256 file to verify the downloaded APK. Original licence and attribution notices remain in the main source branch.
+Download OffPay-1.0.3-release.apk and verify against its .apk.sha256 file. OffPay 1.0.2 is retained below for reference. Licence and attribution notices remain in the source branch.
