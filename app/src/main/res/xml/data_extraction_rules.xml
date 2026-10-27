@@ -17,6 +17,7 @@
         <exclude domain="sharedpref" path="payment_operation.xml" />
         <exclude domain="sharedpref" path="offpay_db_key.xml" />
         <exclude domain="sharedpref" path="OffPayPrefs.xml" />
+        <exclude domain="sharedpref" path="offpay_permissions.xml" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="database" path="offpay_database" />
@@ -28,5 +29,6 @@
         <exclude domain="sharedpref" path="payment_operation.xml" />
         <exclude domain="sharedpref" path="offpay_db_key.xml" />
         <exclude domain="sharedpref" path="OffPayPrefs.xml" />
+        <exclude domain="sharedpref" path="offpay_permissions.xml" />
     </device-transfer>
 </data-extraction-rules>

@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.res.stringResource
@@ -31,6 +30,7 @@ import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayLightGray
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
+import com.offpay.app.ui.theme.OffPayTextWhite
 import kotlinx.coroutines.delay
 
 @Composable
@@ -121,7 +121,7 @@ private fun Upi123ProgressDialogContent(
                     },
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     textAlign = TextAlign.Center
                 )
 
@@ -161,7 +161,7 @@ private fun Upi123ProgressDialogContent(
                                 text = stringResource(R.string.upi123_dlg_not_yet),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -180,7 +180,7 @@ private fun Upi123ProgressDialogContent(
                                 text = stringResource(R.string.upi123_dlg_yes),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 textAlign = TextAlign.Center
                             )
                         }

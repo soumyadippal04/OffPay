@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,18 +43,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.offpay.app.helpers.SetupHelper
+import com.offpay.app.managers.FirstLaunchPermissions
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayDisabledGray
 import com.offpay.app.ui.theme.OffPayLightGray
 import com.offpay.app.ui.theme.OffPayMediumGray
+import com.offpay.app.ui.theme.OffPayOnGradient
 import com.offpay.app.ui.theme.OffPaySurfaceDim
 import com.offpay.app.ui.theme.OffPayTextLightGray
+import com.offpay.app.ui.theme.OffPayTextWhite
 import com.offpay.app.ui.theme.OffPayTheme
 
 class SetupActivity : ComponentActivity() {
     private lateinit var setupHelper: SetupHelper
+    private val firstLaunchPermissions by lazy { FirstLaunchPermissions(this) }
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (result.values.any { !it }) {
+            Toast.makeText(this, R.string.setup_permissions_declined, Toast.LENGTH_LONG).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +92,9 @@ class SetupActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalOffPayAccentTheme provides BlueAccentTheme) {
                 OffPayTheme {
+                    LaunchedEffect(Unit) {
+                        firstLaunchPermissions.requestIfNeeded { permissionLauncher.launch(it) }
+                    }
                     SetupScreen(setupHelper = setupHelper)
                 }
             }
@@ -104,7 +119,7 @@ fun SetupScreen(setupHelper: SetupHelper) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -125,6 +140,13 @@ fun SetupScreen(setupHelper: SetupHelper) {
             HeaderCard()
 
             Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = stringResource(R.string.setup_permissions_explanation),
+                color = OffPayTextLightGray,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Bank Selection Section
             BankSelectionSection(
@@ -222,7 +244,7 @@ fun HeaderCard() {
                         modifier = Modifier
                             .size(44.dp)
                             .background(
-                                color = Color.White.copy(alpha = 0.22f),
+                                color = OffPayOnGradient.copy(alpha = 0.22f),
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
@@ -230,7 +252,7 @@ fun HeaderCard() {
                         Icon(
                             imageVector = Icons.Default.AccountBalanceWallet,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = OffPayOnGradient,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -241,7 +263,7 @@ fun HeaderCard() {
                         Text(
                             text = stringResource(R.string.setup_offpay),
                             style = TextStyle(
-                                color = Color.White,
+                                color = OffPayOnGradient,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.3.sp,
@@ -255,7 +277,7 @@ fun HeaderCard() {
                         Text(
                             text = stringResource(R.string.setup_step_1_of_2),
                             fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.7f),
+                            color = OffPayOnGradient.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -266,7 +288,7 @@ fun HeaderCard() {
                 Text(
                     text = stringResource(R.string.configure_upi_payments),
                     fontSize = 15.sp,
-                    color = Color.White.copy(alpha = 0.85f),
+                    color = OffPayOnGradient.copy(alpha = 0.85f),
                     fontWeight = FontWeight.Normal,
                     lineHeight = 22.sp
                 )
@@ -313,7 +335,7 @@ private fun SetupSectionHeader(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = OffPayTextWhite
             )
             Text(
                 text = subtitle,
@@ -380,10 +402,10 @@ fun BankSelectionSection(
                     unfocusedBorderColor = OffPayLightGray,
                     focusedContainerColor = OffPayMediumGray,
                     unfocusedContainerColor = OffPayDarkGray,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedTrailingIconColor = Color.White,
-                    unfocusedTrailingIconColor = Color.White
+                    focusedTextColor = OffPayTextWhite,
+                    unfocusedTextColor = OffPayTextWhite,
+                    focusedTrailingIconColor = OffPayTextWhite,
+                    unfocusedTrailingIconColor = OffPayTextWhite
                 ),
                 shape = RoundedCornerShape(12.dp),
                 textStyle = TextStyle(fontSize = 15.sp),
@@ -399,7 +421,7 @@ fun BankSelectionSection(
                         text = {
                             Text(
                                 label,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 fontSize = 15.sp
                             )
                         },
@@ -468,10 +490,10 @@ fun SimCardSelectionSection(
                     unfocusedBorderColor = OffPayLightGray,
                     focusedContainerColor = OffPayMediumGray,
                     unfocusedContainerColor = OffPayDarkGray,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedTrailingIconColor = Color.White,
-                    unfocusedTrailingIconColor = Color.White
+                    focusedTextColor = OffPayTextWhite,
+                    unfocusedTextColor = OffPayTextWhite,
+                    focusedTrailingIconColor = OffPayTextWhite,
+                    unfocusedTrailingIconColor = OffPayTextWhite
                 ),
                 shape = RoundedCornerShape(12.dp),
                 textStyle = TextStyle(fontSize = 15.sp),
@@ -487,7 +509,7 @@ fun SimCardSelectionSection(
                         text = {
                             Text(
                                 label,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 fontSize = 15.sp
                             )
                         },
@@ -542,7 +564,7 @@ fun SimCardSelectionSection(
                 text = stringResource(R.string.enable_dual_sim),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White
+                color = OffPayTextWhite
             )
         }
 
@@ -582,10 +604,10 @@ fun SimCardSelectionSection(
                         unfocusedBorderColor = OffPayLightGray,
                         focusedContainerColor = OffPayMediumGray,
                         unfocusedContainerColor = OffPayDarkGray,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedTrailingIconColor = Color.White,
-                        unfocusedTrailingIconColor = Color.White
+                        focusedTextColor = OffPayTextWhite,
+                        unfocusedTextColor = OffPayTextWhite,
+                        focusedTrailingIconColor = OffPayTextWhite,
+                        unfocusedTrailingIconColor = OffPayTextWhite
                     ),
                     shape = RoundedCornerShape(12.dp),
                     textStyle = TextStyle(fontSize = 15.sp),
@@ -601,7 +623,7 @@ fun SimCardSelectionSection(
                             text = {
                                 Text(
                                     label,
-                                    color = Color.White,
+                                    color = OffPayTextWhite,
                                     fontSize = 15.sp
                                 )
                             },
@@ -694,7 +716,7 @@ fun DisclaimerSection(
                             }
                         ),
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = OffPayTextWhite.copy(alpha = 0.85f),
                         lineHeight = 20.sp
                     )
                     Spacer(modifier = Modifier.height(6.dp))
@@ -740,7 +762,7 @@ fun CompleteSetupButton(
             )
             .border(
                 width = 1.dp,
-                color = Color.White.copy(alpha = if (enabled) 0.15f else 0.05f),
+                color = OffPayOnGradient.copy(alpha = if (enabled) 0.15f else 0.05f),
                 shape = buttonShape
             )
             .clip(buttonShape)
@@ -754,7 +776,7 @@ fun CompleteSetupButton(
         ) {
             Text(
                 text = stringResource(R.string.complete_setup),
-                color = Color.White,
+                color = if (enabled) OffPayOnGradient else OffPayTextWhite,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-0.3).sp
@@ -763,7 +785,7 @@ fun CompleteSetupButton(
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = null,
-                tint = Color.White,
+                tint = OffPayOnGradient,
                 modifier = Modifier.size(20.dp)
             )
         }

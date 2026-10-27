@@ -36,6 +36,7 @@ import com.offpay.app.ui.theme.OffPayMediumGray
 import com.offpay.app.ui.theme.OffPayOutlineGray
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
+import com.offpay.app.ui.theme.OffPayTextWhite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -104,7 +105,7 @@ fun ContactPickerDialog(
             ) {
                 Text(
                     "Select Contact",
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -139,8 +140,8 @@ fun ContactPickerDialog(
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = OffPayTextWhite,
+                        unfocusedTextColor = OffPayTextWhite,
                         focusedBorderColor = OffPayOutlineGray,
                         unfocusedBorderColor = OffPayLightGray,
                         cursorColor = LocalOffPayAccentTheme.current.accent,
@@ -250,7 +251,7 @@ fun ContactItem(
             ) {
                 Text(
                     text = contact.name,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1,

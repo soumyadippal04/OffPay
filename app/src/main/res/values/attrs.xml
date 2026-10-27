@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="offPayBackground" format="color" />
+    <attr name="offPayCardBackground" format="color" />
+    <attr name="offPayTextPrimary" format="color" />
+    <attr name="offPayTextSecondary" format="color" />
+</resources>

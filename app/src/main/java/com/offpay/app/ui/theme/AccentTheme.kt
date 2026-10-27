@@ -25,3 +25,11 @@ val BlueAccentTheme = OffPayAccentTheme(
 )
 
 val LocalOffPayAccentTheme = compositionLocalOf { BlueAccentTheme }
+
+// Stronger accents keep controls readable on light surfaces; the bright brand gradients remain.
+val LightBlueAccentTheme = BlueAccentTheme.copy(
+    primary = Color(0xFF235AB9),
+    primaryDark = Color(0xFF1B4B99),
+    accent = Color(0xFF2563EB),
+    accentLight = Color(0xFF235AB9)
+)

@@ -35,6 +35,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -51,6 +52,7 @@ import com.offpay.app.helpers.SetupHelper
 import com.offpay.app.helpers.TransactionDetector
 import com.offpay.app.managers.PermissionManager
 import com.offpay.app.payment.PaymentSessionManager
+import com.offpay.app.ui.theme.savedColorScheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -842,7 +844,7 @@ class QRScannerActivity : ComponentActivity() {
             // Show black screen with status
             tvStatus.text = message
             tvStatus.visibility = View.VISIBLE
-            tvStatus.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+            tvStatus.setTextColor(savedColorScheme(this).onBackground.toArgb())
             tvStatus.textSize = 18f
 
             // Show terminate button
@@ -851,7 +853,7 @@ class QRScannerActivity : ComponentActivity() {
             // Set black background
             findViewById<View>(
                 android.R.id.content
-            ).setBackgroundColor(ContextCompat.getColor(this, android.R.color.black))
+            ).setBackgroundColor(savedColorScheme(this).background.toArgb())
         }
     }
 
@@ -1025,7 +1027,7 @@ class QRScannerActivity : ComponentActivity() {
 
                     findViewById<View>(
                         android.R.id.content
-                    ).setBackgroundColor(ContextCompat.getColor(this, android.R.color.black))
+                    ).setBackgroundColor(savedColorScheme(this).background.toArgb())
 
                     // Resuming after an error: clear both the processing and dialed flags.
                     isProcessingQRCode = false

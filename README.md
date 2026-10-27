@@ -132,7 +132,9 @@ echo "sdk.dir=$ANDROID_HOME" > local.properties
 
 That's it. The build is self-contained — every dependency comes from public Maven repos.
 
-First launch routes through Setup → connectivity test → home screen.
+First launch routes through Setup → connectivity test → home screen. Setup automatically opens Android permission requests for Phone, Camera, incoming SMS confirmations, and Contacts once. Users can decline and grant permissions later in Settings. SMS inbox access is not requested.
+
+Use **Settings → Appearance → Dark mode** to switch between dark and light backgrounds. The choice applies immediately and is saved across launches.
 
 If you want to skim the code without running it, the build also works without an Android device — `./gradlew assembleDebug` produces a working APK in `app/build/outputs/apk/debug/`.
 

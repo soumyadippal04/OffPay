@@ -68,6 +68,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -123,13 +124,16 @@ import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayLightGray
 import com.offpay.app.ui.theme.OffPayMediumGray
+import com.offpay.app.ui.theme.OffPayOnGradient
 import com.offpay.app.ui.theme.OffPayOutlineGray
 import com.offpay.app.ui.theme.OffPayStatusError
 import com.offpay.app.ui.theme.OffPaySurfaceDim
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
 import com.offpay.app.ui.theme.OffPayTextPale
+import com.offpay.app.ui.theme.OffPayTextWhite
 import com.offpay.app.ui.theme.OffPayTheme
+import com.offpay.app.ui.theme.applyWindowTheme
 import com.offpay.app.utils.CurrencyFormat
 import com.offpay.app.utils.findComponentActivity
 import com.offpay.app.viewmodel.MainUiEvent
@@ -198,11 +202,7 @@ class MainActivity : ComponentActivity() {
         // intermittent black bars at the top and bottom.
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Black system bars from the first frame
-        window.statusBarColor = android.graphics.Color.BLACK
-        window.navigationBarColor = android.graphics.Color.BLACK
-        window.setBackgroundDrawableResource(android.R.color.black)
-        window.decorView.setBackgroundColor(android.graphics.Color.BLACK)
+        applyWindowTheme(this)
         window.setFlags(
             android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
             android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
@@ -211,7 +211,6 @@ class MainActivity : ComponentActivity() {
             window.attributes.layoutInDisplayCutoutMode =
                 android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
-        window.decorView.post { enforceBlackStatusBar() }
 
         // Initialize helper with UI callbacks (matches the 6-method UICallback)
         helper = MainActivityHelper(
@@ -309,18 +308,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         helper.onResume()
-        enforceBlackStatusBar()
-    }
-
-    private fun enforceBlackStatusBar() {
-        window.statusBarColor = android.graphics.Color.BLACK
-        window.navigationBarColor = android.graphics.Color.BLACK
-        // Dark bars => light (white) icons. WindowInsetsControllerCompat
-        // routes through WindowInsetsController on API 30+ and the legacy
-        // systemUiVisibility flags on API 29, replacing the deprecated
-        // direct flag manipulation.
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
-            .isAppearanceLightStatusBars = false
+        applyWindowTheme(this)
     }
 
     override fun onStop() {
@@ -403,7 +391,7 @@ private fun ScanQrButton(
                     },
                     shape = CircleShape
                 )
-                .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                .border(1.dp, OffPayOnGradient.copy(alpha = 0.15f), CircleShape)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = {
@@ -427,7 +415,7 @@ private fun ScanQrButton(
                 contentDescription = stringResource(
                     if (isUssdReady) R.string.home_scan_qr else R.string.home_setup_ussd
                 ),
-                tint = if (isUssdReady) Color.White else Color.White.copy(alpha = 0.5f),
+                tint = if (isUssdReady) OffPayOnGradient else OffPayTextLightGray,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -440,7 +428,7 @@ private fun ScanQrButton(
             },
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (isUssdReady) Color.White else OffPayTextLightGray,
+            color = if (isUssdReady) OffPayOnGradient else OffPayTextLightGray,
             textAlign = TextAlign.Center,
             style = TextStyle(
                 shadow = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), 3f)
@@ -470,7 +458,7 @@ private fun ScanQrButton(
                 text = "OR",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White.copy(alpha = 0.8f)
+                color = OffPayTextWhite.copy(alpha = 0.8f)
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
@@ -531,7 +519,7 @@ private fun PayContactButton(
                     },
                     shape = RoundedCornerShape(20.dp)
                 )
-                .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
+                .border(1.dp, OffPayOnGradient.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = {
@@ -547,7 +535,7 @@ private fun PayContactButton(
             Icon(
                 imageVector = if (isUpi123Ready) Icons.Default.Person else Icons.Default.Lock,
                 contentDescription = if (isUpi123Ready) "Pay Contact" else "Set up UPI 123 IVR",
-                tint = if (isUpi123Ready) Color.White else Color.White.copy(alpha = 0.5f),
+                tint = if (isUpi123Ready) OffPayOnGradient else OffPayTextLightGray,
                 modifier = Modifier.size(32.dp)
             )
         }
@@ -556,7 +544,7 @@ private fun PayContactButton(
             text = if (isUpi123Ready) "Pay Contact" else "Set up UPI 123 IVR",
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (isUpi123Ready) Color.White else OffPayTextLightGray,
+            color = if (isUpi123Ready) OffPayOnGradient else OffPayTextLightGray,
             textAlign = TextAlign.Center,
             style = TextStyle(
                 shadow = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), 3f)
@@ -714,19 +702,19 @@ fun MainScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .widthIn(max = 420.dp)
                     .align(Alignment.Center)
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.background)
                     .statusBarsPadding()
                     .navigationBarsPadding()
                     .verticalScroll(rememberScrollState())
@@ -779,7 +767,7 @@ fun MainScreen(
                                         text = "OffPay",
                                         fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White,
+                                        color = OffPayOnGradient,
                                         style = TextStyle(
                                             shadow = Shadow(Color.Black.copy(alpha = 0.15f), Offset(0f, 2f), 6f)
                                         )
@@ -789,7 +777,7 @@ fun MainScreen(
                                         text = "Payments Without Internet",
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Normal,
-                                        color = Color.White.copy(alpha = 0.95f)
+                                        color = OffPayOnGradient.copy(alpha = 0.95f)
                                     )
                                 }
 
@@ -799,7 +787,7 @@ fun MainScreen(
                                         .padding(top = 8.dp, end = 8.dp)
                                         .size(36.dp)
                                         .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.22f))
+                                        .background(OffPayOnGradient.copy(alpha = 0.22f))
                                         .clickable(
                                             indication = null,
                                             interactionSource = remember { MutableInteractionSource() }
@@ -811,7 +799,7 @@ fun MainScreen(
                                     Icon(
                                         imageVector = Icons.Outlined.Settings,
                                         contentDescription = "Settings",
-                                        tint = Color.White,
+                                        tint = OffPayOnGradient,
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
@@ -840,7 +828,7 @@ fun MainScreen(
                                         Text(
                                             text = "Connected Bank",
                                             fontSize = 12.sp,
-                                            color = Color.White.copy(alpha = 0.85f),
+                                            color = OffPayOnGradient.copy(alpha = 0.85f),
                                             maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.height(6.dp))
@@ -848,7 +836,7 @@ fun MainScreen(
                                             text = selectedBankName,
                                             fontSize = 18.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White,
+                                            color = OffPayOnGradient,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -860,13 +848,13 @@ fun MainScreen(
                                         modifier = Modifier
                                             .size(48.dp)
                                             .clip(CircleShape)
-                                            .background(Color.White.copy(alpha = 0.22f)),
+                                            .background(OffPayOnGradient.copy(alpha = 0.22f)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.AccountBalanceWallet,
                                             contentDescription = "Wallet",
-                                            tint = Color.White,
+                                            tint = OffPayOnGradient,
                                             modifier = Modifier.size(26.dp)
                                         )
                                     }
@@ -976,7 +964,7 @@ fun MainScreen(
                                         text = "Recent Payments",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.White
+                                        color = OffPayTextWhite
                                     )
                                     Text(
                                         text = "Your latest transactions",
@@ -1035,7 +1023,7 @@ fun MainScreen(
                                         text = "Failed to load transactions",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color.White
+                                        color = OffPayTextWhite
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
@@ -1081,7 +1069,7 @@ fun MainScreen(
                                         text = "No transactions yet",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color.White
+                                        color = OffPayTextWhite
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
@@ -1210,7 +1198,7 @@ fun TransactionItem(payment: PaymentDetails, onClick: () -> Unit) {
                     text = payment.recipientName ?: payment.phoneNumber,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -1295,7 +1283,7 @@ fun PayContactDialog(
         title = {
             Text(
                 text = "Pay Contact",
-                color = Color.White,
+                color = OffPayTextWhite,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -1356,8 +1344,8 @@ fun PayContactDialog(
                         singleLine = true,
                         modifier = Modifier.weight(1f),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = OffPayTextWhite,
+                            unfocusedTextColor = OffPayTextWhite,
                             focusedBorderColor = OffPayOutlineGray,
                             unfocusedBorderColor = OffPayLightGray,
                             focusedContainerColor = Color.Transparent,
@@ -1416,8 +1404,8 @@ fun PayContactDialog(
                     isError = isOverCap,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = OffPayTextWhite,
+                        unfocusedTextColor = OffPayTextWhite,
                         focusedBorderColor = if (isOverCap) OffPayStatusError else OffPayOutlineGray,
                         unfocusedBorderColor = if (isOverCap) OffPayStatusError else OffPayLightGray,
                         focusedContainerColor = Color.Transparent,
@@ -1503,7 +1491,7 @@ fun PermissionExplanationDialog(
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White
+                color = OffPayTextWhite
             )
         },
         text = {

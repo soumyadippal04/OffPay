@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?attr/offPayBackground"
     android:fitsSystemWindows="true">
 
     <!-- The whole screen — status, amount, card AND the action button — is one
@@ -118,7 +118,7 @@
                     android:layout_marginHorizontal="32dp"
                     android:gravity="center"
                     android:lineSpacingExtra="4dp"
-                    android:textColor="@color/setup_text_secondary"
+                    android:textColor="?attr/offPayTextSecondary"
                     android:textSize="14sp"
                     tools:text="Your bank reported this payment as failed. Any debited amount is normally auto-reversed."
                     android:visibility="gone" />
@@ -138,7 +138,7 @@
                 android:layout_marginTop="28dp"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
-                app:cardBackgroundColor="@color/surface_deep_dark"
+                app:cardBackgroundColor="?attr/offPayCardBackground"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
@@ -162,7 +162,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             tools:text="@string/recipient_paid_to"
-                            android:textColor="@color/text_secondary_dark"
+                            android:textColor="?attr/offPayTextSecondary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -173,7 +173,7 @@
                             android:gravity="end"
                             android:layout_marginStart="12dp"
                             tools:text="John Doe"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/offPayTextPrimary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
                             android:ellipsize="end"
@@ -192,7 +192,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_bank"
-                            android:textColor="@color/text_secondary_dark"
+                            android:textColor="?attr/offPayTextSecondary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -203,7 +203,7 @@
                             android:gravity="end"
                             android:layout_marginStart="12dp"
                             tools:text="HDFC Bank"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/offPayTextPrimary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium" />
 
@@ -220,7 +220,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_bank_reference"
-                            android:textColor="@color/text_secondary_dark"
+                            android:textColor="?attr/offPayTextSecondary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -231,7 +231,7 @@
                             android:gravity="end"
                             android:layout_marginStart="12dp"
                             tools:text="TXN123456"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/offPayTextPrimary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
                             android:ellipsize="middle"
@@ -250,7 +250,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_date_time"
-                            android:textColor="@color/text_secondary_dark"
+                            android:textColor="?attr/offPayTextSecondary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -261,7 +261,7 @@
                             android:gravity="end"
                             android:layout_marginStart="12dp"
                             tools:text="01 Jan 2024, 12:00 PM"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/offPayTextPrimary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium" />
 
@@ -279,7 +279,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_upi_id"
-                            android:textColor="@color/text_secondary_dark"
+                            android:textColor="?attr/offPayTextSecondary"
                             android:textSize="14sp" />
 
                         <TextView
@@ -290,7 +290,7 @@
                             android:gravity="end"
                             android:layout_marginStart="12dp"
                             tools:text="user@upi"
-                            android:textColor="@android:color/white"
+                            android:textColor="?attr/offPayTextPrimary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium" />
 
@@ -317,7 +317,7 @@
                 android:layout_marginEnd="24dp"
                 android:background="@drawable/button_gradient_bg"
                 android:text="@string/action_done"
-                android:textColor="@android:color/white"
+                android:textColor="@color/brand_on_gradient"
                 android:textSize="16sp"
                 android:fontFamily="sans-serif-medium"
                 android:textAllCaps="false"

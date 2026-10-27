@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -39,6 +38,7 @@ import com.offpay.app.ui.theme.OffPayStatusError
 import com.offpay.app.ui.theme.OffPaySurfaceDim
 import com.offpay.app.ui.theme.OffPayTextLightGray
 import com.offpay.app.ui.theme.OffPayTextPale
+import com.offpay.app.ui.theme.OffPayTextWhite
 import com.offpay.app.ui.theme.statusColor
 import com.offpay.app.utils.CurrencyFormat
 import java.text.SimpleDateFormat
@@ -89,7 +89,7 @@ fun TransactionDetailDialog(
                         text = stringResource(R.string.detail_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = OffPayTextWhite
                     )
                     Box(
                         modifier = Modifier
@@ -286,7 +286,7 @@ fun TransactionDetailDialog(
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             containerColor = OffPayDarkGray,
-            titleContentColor = Color.White,
+            titleContentColor = OffPayTextWhite,
             textContentColor = OffPayTextPale,
             title = {
                 Text(
@@ -347,7 +347,7 @@ private fun DetailRow(
                 text = value,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White,
+                color = OffPayTextWhite,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )

@@ -8,6 +8,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -18,6 +19,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,10 +30,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,11 +45,12 @@ import com.offpay.app.BuildConfig
 import com.offpay.app.OffPayApplication
 import com.offpay.app.R
 import com.offpay.app.SetupActivity
+import com.offpay.app.constants.PermissionConstants
 import com.offpay.app.data.SettingsRepository
+import com.offpay.app.managers.FirstLaunchPermissions
 import com.offpay.app.repository.TransactionRepository
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
-import com.offpay.app.ui.theme.OffPayAccentGreenBright
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayDisabledGray
 import com.offpay.app.ui.theme.OffPayMediumGray
@@ -56,6 +59,8 @@ import com.offpay.app.ui.theme.OffPaySurfaceDim
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
 import com.offpay.app.ui.theme.OffPayTextPale
+import com.offpay.app.ui.theme.OffPayTextWhite
+import com.offpay.app.ui.theme.OffPayTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,6 +68,7 @@ import kotlinx.coroutines.withContext
 class SettingsActivity : ComponentActivity() {
 
     private var refreshTrigger = mutableIntStateOf(0)
+    private val permissionHistory by lazy { FirstLaunchPermissions(this) }
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -75,12 +81,22 @@ class SettingsActivity : ComponentActivity() {
         setTheme(R.style.Theme_OffPay)
         setContent {
             CompositionLocalProvider(LocalOffPayAccentTheme provides BlueAccentTheme) {
-                OffPaySettingsTheme {
+                OffPayTheme {
                     SettingsScreen(
                         onBackPressed = { finish() },
                         settingsRepository = settingsRepository,
                         onRequestPermissions = { permissions ->
-                            permissionLauncher.launch(permissions)
+                            if (permissionHistory.shouldOpenSettings(this, permissions)) {
+                                startActivity(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.parse("package:$packageName")
+                                    )
+                                )
+                            } else {
+                                permissionHistory.recordRequest(permissions)
+                                permissionLauncher.launch(permissions)
+                            }
                         },
                         refreshTrigger = refreshTrigger
                     )
@@ -92,24 +108,6 @@ class SettingsActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         refreshTrigger.intValue++
-    }
-}
-
-// Theme
-@Composable
-fun OffPaySettingsTheme(content: @Composable () -> Unit) {
-    val accentTheme = LocalOffPayAccentTheme.current
-    MaterialTheme(
-        colorScheme = darkColorScheme(
-            primary = accentTheme.primary,
-            secondary = accentTheme.accent,
-            background = OffPaySurfaceDim,
-            surface = OffPayDarkGray,
-            onBackground = Color.White,
-            onSurface = Color.White
-        )
-    ) {
-        content()
     }
 }
 
@@ -162,10 +160,9 @@ class SettingsViewModel : androidx.lifecycle.ViewModel() {
 
     fun refreshPermissions(context: Context) {
         val perms = mapOf(
-            "phone" to (
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
-                ),
+            "phone" to PermissionConstants.PHONE_PERMISSIONS.all {
+                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+            },
             "camera" to (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED),
             "sms" to (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED),
             "contacts" to (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED),
@@ -204,6 +201,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val accent = LocalOffPayAccentTheme.current
     val state = viewModel.state
+    val savedSettings = settingsRepository?.settingsFlow?.collectAsState()?.value
 
     // Load settings from repository on first composition
     LaunchedEffect(Unit) {
@@ -248,7 +246,7 @@ fun SettingsScreen(
                         stringResource(R.string.settings_title),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = OffPayTextWhite
                     )
                 },
                 navigationIcon = {
@@ -256,7 +254,7 @@ fun SettingsScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.settings_back),
-                            tint = Color.White
+                            tint = OffPayTextWhite
                         )
                     }
                 },
@@ -293,6 +291,54 @@ fun SettingsScreen(
                     }
                 }
 
+                // Appearance updates the shared preference observed by every Compose screen.
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item { SectionHeader(stringResource(R.string.settings_appearance)) }
+                item {
+                    GroupCard {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .toggleable(
+                                    value = savedSettings?.darkModeEnabled ?: true,
+                                    role = Role.Switch,
+                                    onValueChange = { dark ->
+                                        settingsRepository?.let { repository ->
+                                            repository.saveSettings(
+                                                repository.settingsFlow.value.copy(darkModeEnabled = dark)
+                                            )
+                                        }
+                                    }
+                                )
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Brightness6,
+                                contentDescription = null,
+                                tint = accent.primary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(stringResource(R.string.settings_dark_mode), color = OffPayTextWhite)
+                                Text(
+                                    stringResource(
+                                        if (savedSettings?.darkModeEnabled != false) {
+                                            R.string.settings_mode_dark
+                                        } else {
+                                            R.string.settings_mode_light
+                                        }
+                                    ),
+                                    color = OffPayTextLightGray,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Switch(checked = savedSettings?.darkModeEnabled ?: true, onCheckedChange = null)
+                        }
+                    }
+                }
+
                 // ═══ PERMISSIONS ═══
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 item { SectionHeader("PERMISSIONS") }
@@ -305,10 +351,7 @@ fun SettingsScreen(
                             granted = state.permissions["phone"] ?: false,
                             onRequest = {
                                 onRequestPermissions(
-                                    arrayOf(
-                                        Manifest.permission.CALL_PHONE,
-                                        Manifest.permission.READ_PHONE_STATE
-                                    )
+                                    PermissionConstants.PHONE_PERMISSIONS
                                 )
                             }
                         )
@@ -423,7 +466,7 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showClearDataConfirm = false },
             containerColor = OffPayDarkGray,
-            titleContentColor = Color.White,
+            titleContentColor = OffPayTextWhite,
             textContentColor = OffPayTextPale,
             title = {
                 Text(
@@ -532,7 +575,7 @@ private fun SettingsRow(
     val accent = LocalOffPayAccentTheme.current
     val iconColor = if (destructive) OffPayStatusError else accent.primary
     val iconBg = if (destructive) OffPayStatusError.copy(alpha = 0.12f) else accent.primary.copy(alpha = 0.12f)
-    val titleColor = if (destructive) OffPayStatusError else Color.White
+    val titleColor = if (destructive) OffPayStatusError else OffPayTextWhite
 
     Row(
         modifier = Modifier
@@ -637,7 +680,7 @@ private fun PermissionRow(
                 text = title,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White
+                color = OffPayTextWhite
             )
             Text(
                 text = subtitle,
@@ -650,11 +693,11 @@ private fun PermissionRow(
         if (granted) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = OffPayAccentGreenBright.copy(alpha = 0.12f)
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
             ) {
                 Text(
                     text = "Granted",
-                    color = OffPayAccentGreenBright,
+                    color = MaterialTheme.colorScheme.tertiary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -698,7 +741,7 @@ private fun BankPickerDialog(
                     text = "Select Bank",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
 
@@ -718,7 +761,7 @@ private fun BankPickerDialog(
                                 text = bank.name,
                                 fontSize = 15.sp,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (isSelected) accent.primary else Color.White,
+                                color = if (isSelected) accent.primary else OffPayTextWhite,
                                 modifier = Modifier.weight(1f)
                             )
                             if (isSelected) {
@@ -779,7 +822,7 @@ private fun SimPickerDialog(
                     text = "Select Primary SIM",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
 
@@ -796,7 +839,7 @@ private fun SimPickerDialog(
                             text = name,
                             fontSize = 15.sp,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) accent.primary else Color.White,
+                            color = if (isSelected) accent.primary else OffPayTextWhite,
                             modifier = Modifier.weight(1f)
                         )
                         if (isSelected) {

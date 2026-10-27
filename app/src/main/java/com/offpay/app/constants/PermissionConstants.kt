@@ -34,4 +34,12 @@ object PermissionConstants {
         Manifest.permission.READ_PHONE_STATE,
         Manifest.permission.ANSWER_PHONE_CALLS
     )
+
+    // Runtime consent requested once when setup first opens. RECEIVE_SMS is sufficient;
+    // the app must not request READ_SMS or access the user's existing inbox.
+    val FIRST_LAUNCH_PERMISSIONS = PHONE_PERMISSIONS + arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECEIVE_SMS,
+        Manifest.permission.READ_CONTACTS
+    )
 }

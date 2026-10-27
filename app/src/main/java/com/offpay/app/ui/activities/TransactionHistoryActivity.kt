@@ -44,8 +44,10 @@ import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayMediumGray
+import com.offpay.app.ui.theme.OffPayOnGradient
 import com.offpay.app.ui.theme.OffPayStatusError
 import com.offpay.app.ui.theme.OffPayTextLightGray
+import com.offpay.app.ui.theme.OffPayTextWhite
 import com.offpay.app.ui.theme.OffPayTheme
 import com.offpay.app.ui.theme.statusColor
 import com.offpay.app.utils.CurrencyFormat
@@ -157,19 +159,19 @@ fun TransactionHistoryScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .widthIn(max = 420.dp)
                     .align(Alignment.Center)
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.background)
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
@@ -200,7 +202,7 @@ fun TransactionHistoryScreen(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.22f))
+                                .background(OffPayOnGradient.copy(alpha = 0.22f))
                                 .clickable(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() }
@@ -210,7 +212,7 @@ fun TransactionHistoryScreen(
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = stringResource(R.string.history_back),
-                                tint = Color.White,
+                                tint = OffPayOnGradient,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -221,7 +223,7 @@ fun TransactionHistoryScreen(
                             text = stringResource(R.string.history_title),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = OffPayOnGradient,
                             letterSpacing = 0.3.sp,
                             modifier = Modifier.weight(1f)
                         )
@@ -233,9 +235,9 @@ fun TransactionHistoryScreen(
                                 .clip(CircleShape)
                                 .background(
                                     if (showSearchBar) {
-                                        Color.White.copy(alpha = 0.35f)
+                                        OffPayOnGradient.copy(alpha = 0.35f)
                                     } else {
-                                        Color.White.copy(alpha = 0.22f)
+                                        OffPayOnGradient.copy(alpha = 0.22f)
                                     }
                                 )
                                 .clickable(
@@ -247,7 +249,7 @@ fun TransactionHistoryScreen(
                             Icon(
                                 imageVector = Icons.Default.Search,
                                 contentDescription = stringResource(R.string.history_search),
-                                tint = Color.White,
+                                tint = OffPayOnGradient,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -297,8 +299,8 @@ fun TransactionHistoryScreen(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = OffPayTextWhite,
+                            unfocusedTextColor = OffPayTextWhite,
                             focusedBorderColor = accent.primary,
                             unfocusedBorderColor = Color.Transparent,
                             focusedContainerColor = OffPayDarkGray,
@@ -352,7 +354,7 @@ fun TransactionHistoryScreen(
                                     text = "Something went wrong",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
+                                    color = OffPayTextWhite
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 TextButton(onClick = { transactionViewModel.refresh() }) {
@@ -397,7 +399,7 @@ fun TransactionHistoryScreen(
                                     },
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
+                                    color = OffPayTextWhite
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -501,7 +503,7 @@ private fun TransactionHistoryItem(
                 text = displayName,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White,
+                color = OffPayTextWhite,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -523,7 +525,7 @@ private fun TransactionHistoryItem(
                 text = stringResource(R.string.amount_rupees, CurrencyFormat.inr(transaction.amount)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = OffPayTextWhite,
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -545,7 +547,7 @@ private fun TransactionAvatar(initial: Char) {
             text = initial.toString(),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.White
+            color = OffPayTextWhite
         )
     }
 }

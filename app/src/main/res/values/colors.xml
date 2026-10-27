@@ -37,4 +37,5 @@
     <color name="overlay_alert_red">#FFFF6B6B</color>
     <!-- Backing for the QR scanner's inline "not a valid UPI QR" banner -->
     <color name="scan_error_banner_bg">#F21A1113</color>
+    <color name="brand_on_gradient">#FF102849</color>
 </resources>

@@ -144,3 +144,20 @@ template — that's exactly what Layer 4 exists to catch before a release
 ships, and exactly why growing the Layer 1 corpus (see "Adding a bank SMS
 template" in [CONTRIBUTING.md](../CONTRIBUTING.md)) is one of the most
 valuable contributions this project can take.
+
+## Permission onboarding and appearance
+
+`FirstLaunchPermissionsTest` covers missing permissions, pre-granted permissions,
+denial/recreation without repeated prompts, and the app-settings fallback.
+`AppearanceSettingsTest` covers persistence and resetting the dark/light preference.
+`ThemeContrastTest` checks body-text and gradient contrast in the new palettes.
+
+On a device, verify a fresh install offers Phone, Camera, SMS and Contacts consent
+once during setup. Declining must not restart the dialogs or stop setup. Grant a
+permission later through Settings; permanently denied permissions must open Android
+app settings. Upgrading an already configured install must not restart onboarding.
+
+Toggle Settings → Appearance → Dark mode. Check Settings, home, history, dialogs,
+and a payment result, then restart the app and confirm the selection remains.
+Camera-preview controls intentionally retain high-contrast colours over the live
+image. Physical-device checks are required in addition to the JVM tests.

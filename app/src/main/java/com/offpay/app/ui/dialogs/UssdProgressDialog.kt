@@ -33,6 +33,7 @@ import com.offpay.app.ui.theme.OffPayOutlineGray
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
 import com.offpay.app.ui.theme.OffPayTextPale
+import com.offpay.app.ui.theme.OffPayTextWhite
 import kotlinx.coroutines.delay
 
 @Composable
@@ -129,7 +130,7 @@ private fun UssdProgressDialogContent(
                     },
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = OffPayTextWhite,
                     textAlign = TextAlign.Center
                 )
 
@@ -169,7 +170,7 @@ private fun UssdProgressDialogContent(
                                 text = stringResource(R.string.ussd_dlg_not_yet),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -188,7 +189,7 @@ private fun UssdProgressDialogContent(
                                 text = stringResource(R.string.ussd_dlg_yes),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
+                                color = OffPayTextWhite,
                                 textAlign = TextAlign.Center
                             )
                         }

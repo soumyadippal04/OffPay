@@ -279,4 +279,10 @@
     <string name="upi123_dlg_yes">Yes</string>
     <string name="upi123_dlg_already_set_up">I\'ve already set up UPI 123</string>
 
+    <string name="setup_permissions_explanation">OffPay asks for Phone to place payment calls, Camera to scan QR codes, SMS to receive bank confirmations, and Contacts to select recipients. You choose which permissions to allow and can change them later in Settings.</string>
+    <string name="setup_permissions_declined">You can continue setup. Features needing a declined permission will ask again when used, or you can enable it in Settings.</string>
+    <string name="settings_appearance">APPEARANCE</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_mode_dark">Dark backgrounds</string>
+    <string name="settings_mode_light">Light backgrounds</string>
 </resources>

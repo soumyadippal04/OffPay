@@ -49,11 +49,13 @@ import com.offpay.app.ui.theme.OffPayAccentGreen
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayLightGray
 import com.offpay.app.ui.theme.OffPayMediumGray
+import com.offpay.app.ui.theme.OffPayOnGradient
 import com.offpay.app.ui.theme.OffPayStatusWarning
 import com.offpay.app.ui.theme.OffPaySurfaceDim
 import com.offpay.app.ui.theme.OffPayTextGray
 import com.offpay.app.ui.theme.OffPayTextLightGray
 import com.offpay.app.ui.theme.OffPayTextPale
+import com.offpay.app.ui.theme.OffPayTextWhite
 import com.offpay.app.ui.theme.OffPayTheme
 import kotlinx.coroutines.delay
 
@@ -236,14 +238,14 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .widthIn(max = 420.dp)
                 .align(Alignment.Center)
-                .background(Color.Black)
+                .background(MaterialTheme.colorScheme.background)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
@@ -386,7 +388,7 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
                     },
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (canContinue) Color.White else OffPayTextGray
+                    color = if (canContinue) OffPayOnGradient else OffPayTextGray
                 )
             }
 
@@ -433,7 +435,7 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
             AlertDialog(
                 onDismissRequest = { pendingDial = null },
                 containerColor = OffPayDarkGray,
-                titleContentColor = Color.White,
+                titleContentColor = OffPayTextWhite,
                 textContentColor = OffPayTextPale,
                 title = {
                     Text(
@@ -500,7 +502,7 @@ fun TestHeaderCard() {
                     modifier = Modifier
                         .size(44.dp)
                         .background(
-                            color = Color.White.copy(alpha = 0.22f),
+                            color = OffPayOnGradient.copy(alpha = 0.22f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -508,7 +510,7 @@ fun TestHeaderCard() {
                     Icon(
                         imageVector = CheckCircleIcon,
                         contentDescription = "Test",
-                        tint = Color.White,
+                        tint = OffPayOnGradient,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -520,13 +522,13 @@ fun TestHeaderCard() {
                         text = "Test Configuration",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = OffPayOnGradient,
                         letterSpacing = 0.3.sp
                     )
                     Text(
                         text = "Step 2 of 2",
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = OffPayOnGradient.copy(alpha = 0.7f),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -537,7 +539,7 @@ fun TestHeaderCard() {
             Text(
                 text = "Complete these tests to verify your payment methods work correctly",
                 fontSize = 15.sp,
-                color = Color.White.copy(alpha = 0.85f),
+                color = OffPayOnGradient.copy(alpha = 0.85f),
                 fontWeight = FontWeight.Normal,
                 lineHeight = 22.sp
             )
@@ -561,7 +563,7 @@ fun ProgressDot(isActive: Boolean) {
             .width(if (isActive) 24.dp else 8.dp)
             .height(8.dp)
             .background(
-                color = if (isActive) Color.White else Color.White.copy(alpha = 0.4f),
+                color = if (isActive) OffPayOnGradient else OffPayOnGradient.copy(alpha = 0.4f),
                 shape = if (isActive) RoundedCornerShape(4.dp) else CircleShape
             )
     )
@@ -584,7 +586,7 @@ fun TestInstructions() {
                 text = "Configure Payment Methods",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = OffPayTextWhite,
                 letterSpacing = 0.3.sp
             )
 
@@ -669,7 +671,7 @@ fun TestButton(
                         text = title,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isUnsupported) OffPayStatusWarning else Color.White
+                        color = if (isUnsupported) OffPayStatusWarning else OffPayTextWhite
                     )
                     Text(
                         text = code,
@@ -715,7 +717,7 @@ fun TestButton(
                                 text = "!",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = OffPayTextWhite
                             )
                         }
                     }
@@ -729,7 +731,7 @@ fun TestButton(
                             Icon(
                                 imageVector = CheckIcon,
                                 contentDescription = "Completed",
-                                tint = Color.White,
+                                tint = OffPayTextWhite,
                                 modifier = Modifier.size(14.dp)
                             )
                         }

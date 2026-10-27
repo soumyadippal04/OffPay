@@ -29,7 +29,8 @@ class SettingsRepository(private val context: Context) {
         val overlayEnabled: Boolean = true,
         val debugMode: Boolean = false,
         val setupCompleted: Boolean = false,
-        val testConfigCompleted: Boolean = false
+        val testConfigCompleted: Boolean = false,
+        val darkModeEnabled: Boolean = true
     )
 
     fun saveSettings(settings: SavedSettings) {
@@ -41,6 +42,7 @@ class SettingsRepository(private val context: Context) {
             putBoolean("debug_mode", settings.debugMode)
             putBoolean("setup_completed", settings.setupCompleted)
             putBoolean("test_config_completed", settings.testConfigCompleted)
+            putBoolean("dark_mode_enabled", settings.darkModeEnabled)
         }
         _settingsFlow.value = settings
     }
@@ -53,7 +55,8 @@ class SettingsRepository(private val context: Context) {
             overlayEnabled = prefs.getBoolean("overlay_enabled", true),
             debugMode = prefs.getBoolean("debug_mode", false),
             setupCompleted = prefs.getBoolean("setup_completed", false),
-            testConfigCompleted = prefs.getBoolean("test_config_completed", false)
+            testConfigCompleted = prefs.getBoolean("test_config_completed", false),
+            darkModeEnabled = prefs.getBoolean("dark_mode_enabled", true)
         )
     }
 

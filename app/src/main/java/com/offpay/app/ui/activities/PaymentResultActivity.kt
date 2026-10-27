@@ -7,7 +7,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -23,17 +22,23 @@ import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import com.offpay.app.MainActivity
 import com.offpay.app.R
 import com.offpay.app.data.TransactionStatus
 import com.offpay.app.helpers.TransactionDetector
+import com.offpay.app.ui.theme.applyWindowTheme
+import com.offpay.app.ui.theme.isDarkMode
+import com.offpay.app.ui.theme.savedColorScheme
 import com.offpay.app.utils.CurrencyFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class PaymentResultActivity : AppCompatActivity() {
+
+    private var darkModeAtCreation = true
 
     private lateinit var statusCircle: View
     private lateinit var tickImageView: ImageView
@@ -52,9 +57,11 @@ class PaymentResultActivity : AppCompatActivity() {
     private lateinit var doneButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        darkModeAtCreation = isDarkMode(this)
+        setTheme(if (darkModeAtCreation) R.style.PaymentSuccessTheme else R.style.PaymentSuccessTheme_Light)
         super.onCreate(savedInstanceState)
 
-        // Set system UI to black theme
+        // Match the saved app appearance.
         setupSystemUI()
 
         setContentView(R.layout.activity_payment_success)
@@ -67,6 +74,12 @@ class PaymentResultActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this) {
             navigateToMain()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // A singleTask result screen can survive behind Settings; reinflate its XML on a mode change.
+        if (darkModeAtCreation != isDarkMode(this)) recreate()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -219,8 +232,8 @@ class PaymentResultActivity : AppCompatActivity() {
     private fun applySuccessAccent() {
         statusCircle.backgroundTintList = null
         statusCircle.background = ContextCompat.getDrawable(this, R.drawable.circle_success_bg)
-        statusText.setTextColor(ContextCompat.getColor(this, R.color.transaction_primary))
-        amountText.setTextColor(ContextCompat.getColor(this, R.color.offpay_green))
+        statusText.setTextColor(savedColorScheme(this).primary.toArgb())
+        amountText.setTextColor(savedColorScheme(this).tertiary.toArgb())
     }
 
     /** Non-success look: one status colour across circle, heading and amount. */
@@ -378,14 +391,7 @@ class PaymentResultActivity : AppCompatActivity() {
     }
 
     private fun setupSystemUI() {
-        // Make status bar and navigation bar black (minSdk 29 — no guard needed)
-        window.statusBarColor = Color.BLACK
-        window.navigationBarColor = Color.BLACK
-
-        // Black nav bar => light (white) buttons, via the compat controller
-        // instead of deprecated direct systemUiVisibility manipulation.
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
-            .isAppearanceLightNavigationBars = false
+        applyWindowTheme(this)
 
         // Hide status bar and navigation bar for immersive experience
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

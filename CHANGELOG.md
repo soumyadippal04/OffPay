@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.3 - 2026-10-27
+
+- Ask for Phone, Camera, incoming SMS and Contacts consent once when setup first opens; never automatically grant permissions or repeatedly prompt after denial.
+- Open Android app settings for permanently denied permissions from the Settings permission controls.
+- Add a saved Dark mode switch, real light/dark screen palettes, readable gradient text, and matching payment-result colours and system bars.
+
 ## 1.0.2 - 2026-10-27
 
 - Publish the OffPay-branded Android application (`com.offpay.app`) with brighter blue gradients and a new launcher icon.
