@@ -154,6 +154,3 @@ You may use, modify, and redistribute this code under the terms of the Apache Li
 
 Full terms — no warranty, no affiliation with any bank or telecom, liability, and compliance — are in [LEGAL.md](LEGAL.md). By using, building, modifying, redistributing, or otherwise interacting with this software, you acknowledge that you have read, understood, and agreed to those terms.
 
-## Rebranding and attribution
-
-OffPay is a rebranded derivative of Flowpay. Original copyright, licence, legal and third-party attribution notices are retained in LICENSE, NOTICE and LEGAL.md. The Android application ID is `com.offpay.app`, so OffPay installs alongside Flowpay and does not migrate its private data. The name is a branding choice; trademark availability has not been established.
