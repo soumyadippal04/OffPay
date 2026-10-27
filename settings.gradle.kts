@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Flowpay"
+rootProject.name = "OffPay"
 include(":app")

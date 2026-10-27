@@ -2,14 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="flowpay_green">#FF4CAF50</color>
+    <color name="offpay_green">#FF4CAF50</color>
     
     <!-- Setup Screen Colors -->
     <color name="setup_text_secondary">#FF888888</color>
     <color name="setup_text_tertiary">#FF4A4A4A</color>
 
     <!-- Payment Success Colors -->
-    <color name="transaction_primary">#FF5E97D1</color>
+    <color name="transaction_primary">#FF70ACE7</color>
 
     <!-- QR Scanner Colors -->
 

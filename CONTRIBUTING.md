@@ -1,4 +1,4 @@
-# Contributing to Flowpay
+# Contributing to OffPay
 
 Thanks for your interest in contributing. This guide covers everything you need to get a development build running and to submit a change.
 
@@ -16,8 +16,8 @@ Thanks for your interest in contributing. This guide covers everything you need 
 ## First-time setup
 
 ```bash
-git clone <repo-url>
-cd Flowpay_v1
+git clone https://github.com/soumyadippal04/Flowpay.git OffPay
+cd OffPay
 ```
 
 Create `local.properties` at the repo root (it is gitignored):
@@ -50,7 +50,7 @@ The SMS parser is only as good as its corpus of real bank confirmation formats, 
 ## Project layout
 
 ```
-app/src/main/java/com/flowpay/app/
+app/src/main/java/com/offpay/app/
 ├── MainActivity.kt                  # entry screen
 ├── SetupActivity.kt                 # first-run setup
 ├── TestConfigurationActivity.kt     # post-setup USSD/UPI test gate
@@ -121,3 +121,7 @@ Use the templates under [.github/ISSUE_TEMPLATE](.github/ISSUE_TEMPLATE) when op
 ## License
 
 By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE).
+
+## Licence and attribution
+
+OffPay is distributed under the Apache License 2.0; see [LICENSE](LICENSE). Preserve original copyright notices and [NOTICE](NOTICE), including attribution to the upstream Flowpay project. Read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before participating and [SECURITY.md](SECURITY.md) before reporting a vulnerability.

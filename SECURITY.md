@@ -1,6 +1,6 @@
 # Security Policy
 
-Flowpay handles UPI 123Pay payment flows, USSD dialing, and SMS parsing. Please treat security issues with appropriate care: **do not file public GitHub issues for vulnerabilities.**
+OffPay handles UPI 123Pay payment flows, USSD dialing, and SMS parsing. Please treat security issues with appropriate care: **do not file public GitHub issues for vulnerabilities.**
 
 ## Supported versions
 
@@ -13,46 +13,23 @@ are not backported — update to the newest release.
 | `main` (unreleased) | ✅        |
 | < 1.0               | ❌ pre-release, never distributed |
 
-## Verifying you have a genuine build
+## Builds and signing
 
-We'll be sharing an updated version of Flowpay on this repository's [GitHub Releases](https://github.com/Flowpayup/Payments-Without-Internet/releases).
-Use that page for official APK downloads when available. In the meantime,
-you can build from source with [Running it](README.md#running-it).
+Download published APKs only from this repository's [GitHub Releases](https://github.com/soumyadippal04/Flowpay/releases), or build from source using [Running it](README.md#running-it).
 
-The signing certificate is the trust anchor. Fake UPI apps are common in
-India, and an APK claiming to be Flowpay can come from anywhere; the
-fingerprint below is how you would tell. It was committed ahead of the first
-APK release, so it cannot be back-dated later.
+The current OffPay development APK is signed with a locally generated development key, not an established official publisher key. Its signing certificate SHA-256 digest is:
 
-```
-Release signing certificate SHA-256:
-  64:28:F5:18:05:90:8F:85:2F:A3:63:76:A4:D2:A9:53:31:D1:1D:0A:03:DC:16:12:25:06:EA:E5:D3:68:A8:82
-
-Subject: CN=Flowpay, O=Flowpay, L=Bengaluru, C=IN
+```text
+51536574a0a4aa1468800bd50bc91035b3ac4e3c9cf04ff9843ad8f11ae7889f
 ```
 
-Check any APK against it:
+Verify an APK with `apksigner verify --print-certs OffPay-1.0.1-release.apk`. A file's SHA-256 checksum checks file integrity; it is different from the signing certificate digest above. Never publish private keys, keystores or their passwords.
 
-```bash
-apksigner verify --print-certs flowpay-vX.Y.Z.apk
-```
-
-Compare against the fingerprint committed **here**, not against the release
-notes — release notes are written by whoever published the release, so checking
-them against themselves proves nothing. The fingerprint above is tamper-evident
-through git history.
-
-A change to this fingerprint in a future version means the signing key changed.
-That is not normal; ask before installing.
-
-Building from source remains fully supported and needs none of this — see
-[Running it](README.md#running-it).
+OffPay uses application ID `com.offpay.app`, so it installs separately from Flowpay. Different signing keys cannot update the same installed application without uninstalling it first, which removes its private data. Physical-device launch and payment validation remain outstanding for this rebrand.
 
 ## Reporting a vulnerability
 
-Email **`flowpay28@gmail.com`** with the subject line:
-
-> `Flowpay UPI — Security report — <one-line summary>`
+Report vulnerabilities privately to the repository maintainer, [@soumyadippal04](https://github.com/soumyadippal04), using the contact details published on their GitHub profile. If this repository offers **Security → Report a vulnerability**, use that private reporting route. Do not publish exploit details, bank SMS, PINs or other personal data in a public issue.
 
 Please include:
 
@@ -97,7 +74,7 @@ What the app stores, where, and for how long:
 
 | Data | Where | Lifetime | Leaves the device? |
 |------|-------|----------|--------------------|
-| Transaction rows (amount, status, bank, bank ref, counterparty name, privacy-safe summary) | Room DB `flowpay_database`, app-private storage | Until the user deletes them or uninstalls | **Never** — excluded from cloud backup and device transfer (`backup_rules.xml`, `data_extraction_rules.xml`) |
+| Transaction rows (amount, status, bank, bank ref, counterparty name, privacy-safe summary) | Room DB `offpay_database`, app-private storage | Until the user deletes them or uninstalls | **Never** — excluded from cloud backup and device transfer (`backup_rules.xml`, `data_extraction_rules.xml`) |
 | Raw bank SMS bodies | **Not stored** (since schema v3) | — | The verbatim SMS stays in the user's SMS inbox app only |
 | Active payment-operation window (expected amount, recipient number, ~10-min deadline) | `payment_operation` SharedPreferences | Cleared on confirmation or timeout | Never — excluded from backup |
 | UPI PIN | **Never seen by the app** — entered into the bank's IVR/dialer flow | — | — |

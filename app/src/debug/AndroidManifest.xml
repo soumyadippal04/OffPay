@@ -12,8 +12,8 @@
             android:name=".receivers.DebugSmsInjectionReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.flowpay.app.debug.START_OPERATION" />
-                <action android:name="com.flowpay.app.debug.INJECT_SMS" />
+                <action android:name="com.offpay.app.debug.START_OPERATION" />
+                <action android:name="com.offpay.app.debug.INJECT_SMS" />
             </intent-filter>
         </receiver>
     </application>

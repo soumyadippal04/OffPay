@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### OffPay rebrand — 2026-10-27
+
+- Renamed the app, Android package, source directories, resources, documentation and CI paths to OffPay (`com.offpay.app`).
+- Added a lightning-ring launcher icon and slightly brighter blue gradients.
+- Updated contributor, conduct, legal and security documentation; retained original copyright, Apache licence and upstream attribution notices.
+- Debug/release builds, 154 tests per variant, lint, detekt and coverage checks passed. Physical-device payment validation remains outstanding.
+
+The entries below describe the inherited Flowpay project history.
+
+
 ## 1.0.1 - 2026-10-03
 
 The first signed APK offered through GitHub Releases. The maintainer completed

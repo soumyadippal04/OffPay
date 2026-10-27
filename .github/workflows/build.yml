@@ -67,7 +67,7 @@ jobs:
           # Payment-critical code must never interpolate raw SMS bodies or
           # full identifiers into logcat. Catches reintroductions at CI time.
           ! grep -rnE 'Log\.[dwie]\(.*\$\{?(body|rawMessage|messageBody)' \
-            app/src/main/java/com/flowpay/app/{payment,receivers,services,helpers}/ \
+            app/src/main/java/com/offpay/app/{payment,receivers,services,helpers}/ \
             || (echo "::error::Log statement leaks SMS body content" && exit 1)
 
       - name: Palette gate — no inline colors outside the theme
@@ -75,7 +75,7 @@ jobs:
           # Every Compose color comes from ui/theme/Color.kt tokens, and every
           # layout color from colors.xml. Inline literals drift screens apart
           # (the codebase once had 200 of them across 14 near-identical greys).
-          ! grep -rn 'Color(0x' app/src/main/java/com/flowpay/app \
+          ! grep -rn 'Color(0x' app/src/main/java/com/offpay/app \
             --include='*.kt' | grep -v '/ui/theme/' \
             || (echo "::error::Inline Color(0x…) outside ui/theme — use a design token" && exit 1)
           ! grep -rnE '"#[0-9A-Fa-f]{6,8}"' app/src/main/res/layout/ \
@@ -89,7 +89,7 @@ jobs:
           # Ratchet for the common single-line `Text("literal")` form; the
           # leading [^A-Za-z0-9_] avoids matching e.g. ClipData.newPlainText(.
           ! grep -rnE '(^|[^A-Za-z0-9_])Text\(\s*(text\s*=\s*)?"[^"]' \
-            app/src/main/java/com/flowpay/app --include='*.kt' \
+            app/src/main/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string in a Compose Text(…) — move it to strings.xml" && exit 1)
           # The View layer escapes both of the gates above: lint's
           # HardcodedText never leaves XML, and the Compose ratchet only
@@ -98,14 +98,14 @@ jobs:
           # ${e.message} — which in a minified release renders an
           # R8-obfuscated class name to the user. Cover the View surfaces too.
           ! grep -rnE 'Toast\.makeText\([^,]+,\s*"|\.text\s*=\s*"|setText\("' \
-            app/src/main/java/com/flowpay/app --include='*.kt' \
+            app/src/main/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string in a Toast/TextView — move it to strings.xml and pass the resource id" && exit 1)
           # And the app's own UI-callback helpers, which route to a Toast one
           # frame later and so hid another 23 literals from the check above.
           # This list is the project's user-facing message entry points; add
           # to it when a new one appears.
           ! grep -rnE '(showToast|showError|showMessage|showInvalidQrCode)\(\s*"' \
-            app/src/main/java/com/flowpay/app --include='*.kt' \
+            app/src/main/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string passed to a UI callback — move it to strings.xml and pass getString(…)" && exit 1)
 
       - name: Run unit tests
@@ -174,14 +174,14 @@ jobs:
 
       # No debug APK is uploaded. On a public repository every Actions
       # artifact is world-downloadable, and this one would be the most
-      # authentic-looking Flowpay build in existence — produced by the
+      # authentic-looking OffPay build in existence — produced by the
       # project's own CI. It is also the most dangerous one to install:
       # `android:debuggable=true` exposes the SQLCipher database and the key
       # prefs to `adb run-as`, it carries `DebugSmsInjectionReceiver`
       # exported with no permission (so any zero-permission app on the phone
       # can fake a "Payment Successful" screen and a SUCCESS row), and it is
       # signed with the public Android debug key, so anyone can trojan it and
-      # ship an in-place upgrade. SECURITY.md tells readers no Flowpay APK is
+      # ship an in-place upgrade. SECURITY.md tells readers no OffPay APK is
       # published anywhere; publishing one here would make that guidance
       # actively harmful. The build below still proves the app compiles.
 

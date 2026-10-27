@@ -28,7 +28,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:name=".FlowpayApplication"
+        android:name=".OffPayApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -36,21 +36,21 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Flowpay"
+        android:theme="@style/Theme.OffPay"
         tools:targetApi="31">
 
         <activity
             android:name=".SetupActivity"
             android:exported="false"
-            android:theme="@style/Theme.Flowpay" />
+            android:theme="@style/Theme.OffPay" />
         <activity
             android:name=".TestConfigurationActivity"
             android:exported="false"
-            android:theme="@style/Theme.Flowpay" />
+            android:theme="@style/Theme.OffPay" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.Flowpay.Splash"
+            android:theme="@style/Theme.OffPay.Splash"
             android:label="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,7 +62,7 @@
         <activity
             android:name=".features.qr_scanner.presentation.QRScannerActivity"
             android:exported="false"
-            android:theme="@style/Theme.Flowpay"
+            android:theme="@style/Theme.OffPay"
             android:screenOrientation="portrait" />
         
         <!-- Payment Success Activity -->
@@ -77,14 +77,14 @@
         <activity
             android:name=".ui.activities.TransactionHistoryActivity"
             android:exported="false"
-            android:theme="@style/Theme.Flowpay"
+            android:theme="@style/Theme.OffPay"
             android:screenOrientation="portrait" />
         
         <!-- Settings Activity -->
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:exported="false"
-            android:theme="@style/Theme.Flowpay"
+            android:theme="@style/Theme.OffPay"
             android:label="@string/settings_title"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">

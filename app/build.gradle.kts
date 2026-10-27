@@ -29,7 +29,7 @@ fun keystoreProp(key: String): String = keystoreProperties[key] as? String
     )
 
 android {
-    namespace = "com.flowpay.app"
+    namespace = "com.offpay.app"
     compileSdk = 35
     // Pinned, not "whatever AGP resolves": aapt2 and zipalign differ between
     // build-tools revisions, so leaving this floating makes the reproducible
@@ -37,7 +37,7 @@ android {
     buildToolsVersion = "35.0.0"
 
     defaultConfig {
-        applicationId = "com.flowpay.app"
+        applicationId = "com.offpay.app"
         minSdk = 29
         targetSdk = 35
         // versionCode is monotonic and independent of versionName: builds with
@@ -174,11 +174,11 @@ kover {
         filters {
             includes {
                 packages(
-                    "com.flowpay.app.payment",
-                    "com.flowpay.app.payment.sms",
-                    "com.flowpay.app.telephony"
+                    "com.offpay.app.payment",
+                    "com.offpay.app.payment.sms",
+                    "com.offpay.app.telephony"
                 )
-                classes("com.flowpay.app.helpers.TransactionDetector*")
+                classes("com.offpay.app.helpers.TransactionDetector*")
             }
         }
         verify {

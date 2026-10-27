@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct
+# OffPay Code of Conduct
 
 ## Our Pledge
 
@@ -59,8 +59,10 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-**flowpay28@gmail.com**.
+reported privately to the repository maintainer,
+[@soumyadippal04](https://github.com/soumyadippal04), using the contact details
+published on their GitHub profile. Do not post personal or sensitive incident
+details in public issues.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the

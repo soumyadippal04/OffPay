@@ -36,10 +36,10 @@
     <issue
         id="InflateParams"
         message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="            overlayView = inflater.inflate(R.layout.call_overlay_flowpay, null)"
+        errorLine1="            overlayView = inflater.inflate(R.layout.call_overlay_offpay, null)"
         errorLine2="                                                                          ~~~~">
         <location
-            file="src/main/java/com/flowpay/app/services/CallOverlayService.kt"
+            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
             line="582"
             column="75"/>
     </issue>
@@ -149,10 +149,10 @@
     <issue
         id="UseAppTint"
         message="Must use `app:tint` instead of `android:tint`"
-        errorLine1="                android:tint=&quot;@color/flowpay_green&quot;"
+        errorLine1="                android:tint=&quot;@color/offpay_green&quot;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/call_overlay_flowpay.xml"
+            file="src/main/res/layout/call_overlay_offpay.xml"
             line="58"
             column="17"/>
     </issue>
@@ -163,7 +163,7 @@
         errorLine1="                android:tint=&quot;@color/overlay_alert_red&quot;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/call_overlay_flowpay.xml"
+            file="src/main/res/layout/call_overlay_offpay.xml"
             line="232"
             column="17"/>
     </issue>
@@ -219,7 +219,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/services/CallOverlayService.kt"
+            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
             line="325"
             column="13"/>
     </issue>
@@ -230,7 +230,7 @@
         errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/services/CallOverlayService.kt"
+            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
             line="342"
             column="20"/>
     </issue>
@@ -241,7 +241,7 @@
         errorLine1="                type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/services/CallOverlayService.kt"
+            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
             line="610"
             column="28"/>
     </issue>
@@ -252,7 +252,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/MainActivity.kt"
+            file="src/main/java/com/offpay/app/MainActivity.kt"
             line="205"
             column="13"/>
     </issue>
@@ -263,7 +263,7 @@
         errorLine1="            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/managers/PermissionManager.kt"
+            file="src/main/java/com/offpay/app/managers/PermissionManager.kt"
             line="21"
             column="24"/>
     </issue>
@@ -274,7 +274,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M || canDrawOverlays(activity)) return null"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/managers/PermissionManager.kt"
+            file="src/main/java/com/offpay/app/managers/PermissionManager.kt"
             line="82"
             column="13"/>
     </issue>
@@ -285,7 +285,7 @@
         errorLine1="            &quot;overlay&quot; to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Settings.canDrawOverlays(context) else true),"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/ui/activities/SettingsActivity.kt"
+            file="src/main/java/com/offpay/app/ui/activities/SettingsActivity.kt"
             line="187"
             column="31"/>
     </issue>
@@ -336,7 +336,7 @@
         errorLine1="        // Cleared in onDestroy(), so the reference is bounded by the service"
         errorLine2="        ^">
         <location
-            file="src/main/java/com/flowpay/app/services/CallOverlayService.kt"
+            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
             line="53"
             column="9"/>
     </issue>
@@ -354,7 +354,7 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/black` with a theme that also paints a background (inferred theme is `@style/Theme_Flowpay`)"
+        message="Possible overdraw: Root element paints background `@color/black` with a theme that also paints a background (inferred theme is `@style/Theme_OffPay`)"
         errorLine1="    android:background=&quot;@color/black&quot;>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -391,7 +391,7 @@
         errorLine1="    private val dateFormatter = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())"
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/flowpay/app/utils/OverlayLogger.kt"
+            file="src/main/java/com/offpay/app/utils/OverlayLogger.kt"
             line="19"
             column="63"/>
     </issue>

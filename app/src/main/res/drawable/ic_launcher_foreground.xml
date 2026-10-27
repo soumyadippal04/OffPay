@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive icon 108×108 dp; 12dp inset → 84×84 dp wordmark (large; edges may clip on circular/squircle masks). -->
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="12dp"
-    android:insetTop="12dp"
-    android:insetRight="12dp"
-    android:insetBottom="12dp"
-    android:drawable="@drawable/ic_flowpay_wordmark" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- An open payment ring and lightning bolt: OffPay's offline-first mark. -->
+    <path android:fillColor="@android:color/transparent"
+        android:strokeColor="#86B5FF" android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:pathData="M69,31 A28,28 0,1 0,78,64" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M60,28 L43,57 L55,57 L49,79 L73,46 L59,46 Z" />
+</vector>

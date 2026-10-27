@@ -340,11 +340,11 @@
     <ID>MagicNumber:UssdProgressDialog.kt$9.89482f</ID>
     <ID>MagicNumber:UssdProgressDialog.kt$9.94454f</ID>
     <ID>MagicNumber:UssdProgressDialog.kt$9.97366f</ID>
-    <ID>MatchingDeclarationName:AccentTheme.kt$FlowpayAccentTheme</ID>
+    <ID>MatchingDeclarationName:AccentTheme.kt$OffPayAccentTheme</ID>
     <ID>MatchingDeclarationName:ContactPickerDialog.kt$Contact</ID>
-    <ID>MaxLineLength:MainActivity.kt$message = "Flowpay needs access to your contacts so you can pick a recipient by name instead of typing their number."</ID>
-    <ID>MaxLineLength:MainActivity.kt$message = "Flowpay needs overlay permission to show a payment UI anchor during the call. This keeps your transaction details visible while the call is in progress."</ID>
-    <ID>MaxLineLength:MainActivity.kt$message = "Flowpay reads incoming bank SMS only while a payment is in progress, to detect the confirmation. It never reads your inbox and nothing leaves the device."</ID>
+    <ID>MaxLineLength:MainActivity.kt$message = "OffPay needs access to your contacts so you can pick a recipient by name instead of typing their number."</ID>
+    <ID>MaxLineLength:MainActivity.kt$message = "OffPay needs overlay permission to show a payment UI anchor during the call. This keeps your transaction details visible while the call is in progress."</ID>
+    <ID>MaxLineLength:MainActivity.kt$message = "OffPay reads incoming bank SMS only while a payment is in progress, to detect the confirmation. It never reads your inbox and nothing leaves the device."</ID>
     <ID>MaxLineLength:MainActivityHelper.kt$MainActivityHelper$"which doesn't look like the ${selectedCarrier.replaceFirstChar { it.uppercase() }} SIM from setup. "</ID>
     <ID>MaxLineLength:SettingsActivity.kt$SettingsViewModel$"camera" to (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)</ID>
     <ID>MaxLineLength:SettingsActivity.kt$SettingsViewModel$"contacts" to (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED)</ID>
@@ -397,16 +397,16 @@
     <ID>NoWildcardImports:UssdProgressDialog.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>NoWildcardImports:UssdProgressDialog.kt$import androidx.compose.material3.*</ID>
     <ID>NoWildcardImports:UssdProgressDialog.kt$import androidx.compose.runtime.*</ID>
-    <ID>PackageName:QRCodeAnalyzer.kt$package com.flowpay.app.features.qr_scanner.domain</ID>
-    <ID>PackageName:QRCodeAnalyzerDecodeTest.kt$package com.flowpay.app.features.qr_scanner</ID>
-    <ID>PackageName:QRCodeParser.kt$package com.flowpay.app.features.qr_scanner.domain</ID>
-    <ID>PackageName:QRCodeParserTest.kt$package com.flowpay.app.features.qr_scanner</ID>
-    <ID>PackageName:QRScannerActivity.kt$package com.flowpay.app.features.qr_scanner.presentation</ID>
-    <ID>PackageNaming:QRCodeAnalyzer.kt$package com.flowpay.app.features.qr_scanner.domain</ID>
-    <ID>PackageNaming:QRCodeAnalyzerDecodeTest.kt$package com.flowpay.app.features.qr_scanner</ID>
-    <ID>PackageNaming:QRCodeParser.kt$package com.flowpay.app.features.qr_scanner.domain</ID>
-    <ID>PackageNaming:QRCodeParserTest.kt$package com.flowpay.app.features.qr_scanner</ID>
-    <ID>PackageNaming:QRScannerActivity.kt$package com.flowpay.app.features.qr_scanner.presentation</ID>
+    <ID>PackageName:QRCodeAnalyzer.kt$package com.offpay.app.features.qr_scanner.domain</ID>
+    <ID>PackageName:QRCodeAnalyzerDecodeTest.kt$package com.offpay.app.features.qr_scanner</ID>
+    <ID>PackageName:QRCodeParser.kt$package com.offpay.app.features.qr_scanner.domain</ID>
+    <ID>PackageName:QRCodeParserTest.kt$package com.offpay.app.features.qr_scanner</ID>
+    <ID>PackageName:QRScannerActivity.kt$package com.offpay.app.features.qr_scanner.presentation</ID>
+    <ID>PackageNaming:QRCodeAnalyzer.kt$package com.offpay.app.features.qr_scanner.domain</ID>
+    <ID>PackageNaming:QRCodeAnalyzerDecodeTest.kt$package com.offpay.app.features.qr_scanner</ID>
+    <ID>PackageNaming:QRCodeParser.kt$package com.offpay.app.features.qr_scanner.domain</ID>
+    <ID>PackageNaming:QRCodeParserTest.kt$package com.offpay.app.features.qr_scanner</ID>
+    <ID>PackageNaming:QRScannerActivity.kt$package com.offpay.app.features.qr_scanner.presentation</ID>
     <ID>ReturnCount:CallManager.kt$CallManager$fun initiateUPI123Call(phoneNumber: String, amount: String): Boolean</ID>
     <ID>ReturnCount:CallManager.kt$CallManager$fun terminateCall(): Boolean</ID>
     <ID>ReturnCount:CallOverlayService.kt$CallOverlayService$fun onCallDetected()</ID>

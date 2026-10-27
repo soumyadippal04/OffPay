@@ -1,9 +1,9 @@
-# Testing Flowpay
+# Testing OffPay
 
-Flowpay's core claim — a payment outcome is only ever recorded from a
+OffPay's core claim — a payment outcome is only ever recorded from a
 confirming bank SMS, never from call duration — can't be end-to-end tested
 the way a normal app is: there's no test double for an Indian bank, a UPI
-switch, or a telco's IVR menu. This is Flowpay's honest answer to "how do
+switch, or a telco's IVR menu. This is OffPay's honest answer to "how do
 you know it works" without one.
 
 Verification happens in four layers, each covering what the layer below it
@@ -15,14 +15,14 @@ Pure logic, no Android framework, no device. Runs in seconds via
 `./gradlew test`.
 
 - **`SmsTransactionParserTest`** — the bank-SMS matching pipeline
-  ([SmsTransactionParser.kt](../app/src/main/java/com/flowpay/app/payment/sms/SmsTransactionParser.kt)),
+  ([SmsTransactionParser.kt](../app/src/main/java/com/offpay/app/payment/sms/SmsTransactionParser.kt)),
   exercised end-to-end via `parse()` across a corpus covering every
   supported bank, success/failure/credit/non-UPI-debit-alert shapes, and
   amount-format edge cases. `SmsParsingRegexTest` covers the individual
   regex-backed building blocks (bank detection, dedup key convergence,
   amount tolerance) the same way.
 - **`PaymentSessionManagerTest`** — the payment lifecycle state machine
-  ([PaymentSessionManager.kt](../app/src/main/java/com/flowpay/app/payment/PaymentSessionManager.kt)),
+  ([PaymentSessionManager.kt](../app/src/main/java/com/offpay/app/payment/PaymentSessionManager.kt)),
   driven with `kotlinx-coroutines-test` and fakes for the call-state source
   and the persistence layer. Covers the PENDING-before-dial invariant,
   every terminal transition (Success/Failed/Cancelled/Timeout — where a
@@ -60,7 +60,7 @@ Layer 1 proves the parsing logic is correct in isolation. It does not prove
 the *wiring* — that a broadcast reaching `SimpleSMSReceiver` actually flows
 through session confirmation, persistence, and the result screen. Layer 3
 closes that gap by driving the **live** pipeline
-([SmsIngestionPipeline.kt](../app/src/main/java/com/flowpay/app/receivers/SmsIngestionPipeline.kt))
+([SmsIngestionPipeline.kt](../app/src/main/java/com/offpay/app/receivers/SmsIngestionPipeline.kt))
 end-to-end on any emulator, without a real bank or a real call.
 
 `DebugSmsInjectionReceiver` is compiled only into debug builds — the whole
@@ -72,19 +72,19 @@ a release build to gate.
 # 1. Install a debug build and launch the app (a force-stopped app
 #    receives no broadcasts at all)
 ./gradlew installDebug
-adb shell am start -n com.flowpay.app/.MainActivity
+adb shell am start -n com.offpay.app/.MainActivity
 
 # 2. Start a payment operation window (same as tapping "Pay" in the app)
-adb shell "am broadcast -n com.flowpay.app/.receivers.DebugSmsInjectionReceiver \
-  -a com.flowpay.app.debug.START_OPERATION \
+adb shell "am broadcast -n com.offpay.app/.receivers.DebugSmsInjectionReceiver \
+  -a com.offpay.app.debug.START_OPERATION \
   --es operation_type UPI_123 \
   --es expected_amount 500 \
   --es phone_number 9876543210"
 
 # 3. Inject a bank confirmation SMS — any redacted sample from the
 #    SmsTransactionParserTest corpus works
-adb shell "am broadcast -n com.flowpay.app/.receivers.DebugSmsInjectionReceiver \
-  -a com.flowpay.app.debug.INJECT_SMS \
+adb shell "am broadcast -n com.offpay.app/.receivers.DebugSmsInjectionReceiver \
+  -a com.offpay.app.debug.INJECT_SMS \
   --es sender VK-HDFCBK \
   --es body 'Rs.500.00 sent to KIRANA STORE from HDFC Bank A/c **1234 via UPI ref 512233440091'"
 ```
@@ -123,7 +123,7 @@ The same two broadcasts cover the cases that are easy to regress:
 - **Cancel really cancels.** Start a payment from the app, hit *Cancel
   payment* on the overlay, then inject a matching debit. Nothing should
   surface, and the row must stay CANCELLED —
-  `adb shell run-as com.flowpay.app cat shared_prefs/payment_operation.xml`
+  `adb shell run-as com.offpay.app cat shared_prefs/payment_operation.xml`
   should show the window cleared.
 - **No SMS, no record.** Open a window, inject nothing, and let the deadline
   pass: no result screen, no notification, and no row in either list.

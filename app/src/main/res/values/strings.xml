@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Flowpay</string>
+    <string name="app_name">OffPay</string>
     
     <!-- Setup Screen Strings -->
-    <string name="setup_flowpay">Setup Flowpay</string>
+    <string name="setup_offpay">Setup OffPay</string>
     <string name="configure_upi_payments">Configure your UPI payments</string>
     <string name="bank_selection">Bank Selection</string>
     <string name="choose_primary_bank">Choose your primary bank for UPI payments</string>
@@ -12,8 +12,8 @@
     <string name="secondary_sim">Secondary SIM</string>
     <string name="complete_setup">Complete Setup</string>
     <string name="disclaimer">Disclaimer</string>
-    <string name="disclaimer_summary">Flowpay never touches your money or your UPI PIN. It only dials your bank\'s *99# / UPI 123 flow for you. Tap to read the full disclaimer.</string>
-    <string name="disclaimer_text">Flowpay is a free, open-source app. It is not a bank, wallet, or payment processor, and it never holds, moves, or has access to your money.\n\nAll Flowpay does is dial for you. It automates your bank\'s *99# / UPI 123 (UPI 123PAY) menu. Every payment is authorised and processed directly by you, your bank, and NPCI over your mobile network, exactly as if you had dialled it yourself. Flowpay is not affiliated with or endorsed by NPCI or any bank.\n\nYour UPI PIN never touches Flowpay. The app does not use Android accessibility services, screen reading, or any form of input capture. You enter your PIN only inside your bank\'s own *99# / IVR flow, where Flowpay cannot see it, intercept it, or store it.\n\nYour data stays on your device. Flowpay reads incoming bank SMS only while a payment is in progress, and only to detect the confirmation. It never uploads your messages, contacts, or transaction history anywhere.\n\nBy continuing, you confirm that you have read and understood this.</string>
+    <string name="disclaimer_summary">OffPay never touches your money or your UPI PIN. It only dials your bank\'s *99# / UPI 123 flow for you. Tap to read the full disclaimer.</string>
+    <string name="disclaimer_text">OffPay is a free, open-source app. It is not a bank, wallet, or payment processor, and it never holds, moves, or has access to your money.\n\nAll OffPay does is dial for you. It automates your bank\'s *99# / UPI 123 (UPI 123PAY) menu. Every payment is authorised and processed directly by you, your bank, and NPCI over your mobile network, exactly as if you had dialled it yourself. OffPay is not affiliated with or endorsed by NPCI or any bank.\n\nYour UPI PIN never touches OffPay. The app does not use Android accessibility services, screen reading, or any form of input capture. You enter your PIN only inside your bank\'s own *99# / IVR flow, where OffPay cannot see it, intercept it, or store it.\n\nYour data stays on your device. OffPay reads incoming bank SMS only while a payment is in progress, and only to detect the confirmation. It never uploads your messages, contacts, or transaction history anywhere.\n\nBy continuing, you confirm that you have read and understood this.</string>
     
     <!-- Bank Names -->
     
@@ -35,10 +35,10 @@
          release builds are minified, so `e.message` there reads as an
          R8-obfuscated class name. The detail belongs in the adjacent
          Log.e(TAG, "…", e) call, which carries the throwable. -->
-    <string name="error_permissions_denied">Some permissions were denied. Flowpay may not work correctly without them.</string>
-    <string name="error_call_permission_denied">Flowpay needs permission to place the call.</string>
+    <string name="error_permissions_denied">Some permissions were denied. OffPay may not work correctly without them.</string>
+    <string name="error_call_permission_denied">OffPay needs permission to place the call.</string>
     <string name="error_call_failed">Could not start the payment call. Please try again.</string>
-    <string name="error_audio_permission">Flowpay needs permission to adjust call audio.</string>
+    <string name="error_audio_permission">OffPay needs permission to adjust call audio.</string>
     <string name="error_audio_lower_failed">Could not lower the call volume.</string>
     <string name="error_audio_restore_failed">Could not restore the call volume.</string>
     <string name="error_qr_scanner_init">Could not open the QR scanner.</string>
@@ -49,7 +49,7 @@
     <string name="error_enter_phone_and_amount">Enter both a phone number and an amount.</string>
     <string name="error_invalid_phone_number">Enter a valid 10-digit phone number.</string>
     <string name="error_invalid_amount">Enter a valid amount.</string>
-    <string name="error_phone_permission_required">Flowpay needs phone permissions to place the payment call.</string>
+    <string name="error_phone_permission_required">OffPay needs phone permissions to place the payment call.</string>
     <string name="error_payment_not_started">The payment could not be started. Please try again.</string>
     <string name="error_call_permission_required_ussd">Phone call permission is required to test USSD.</string>
     <string name="error_call_permission_required_payments">Phone call permission is required for USSD payments.</string>
@@ -79,7 +79,7 @@
     <string name="warn_voice_sim_mismatch">Note: this call will use your default calling SIM (%1$s), which doesn\'t look like the %2$s SIM from setup. If the payment fails, switch your default calling SIM.</string>
 
     <!-- Progress and outcome notices from setup and the connectivity test -->
-    <string name="status_requesting_permissions">Requesting the permissions Flowpay needs…</string>
+    <string name="status_requesting_permissions">Requesting the permissions OffPay needs…</string>
     <string name="status_opening_scanner">Opening the QR scanner…</string>
     <string name="status_permissions_granted_ussd">Permissions granted. You can test USSD now.</string>
     <string name="status_setup_complete">Setup complete.</string>
@@ -110,7 +110,7 @@
     <string name="dialog_failed_title">Transaction Failed</string>
     <string name="dialog_failed_message">Your bank reported the payment as failed. Any debited amount is normally reversed automatically — check your bank if it isn\'t.</string>
     <string name="dialog_awaiting_title">Request Sent</string>
-    <string name="dialog_awaiting_message">Your payment request was sent to the UPI service.\n\nIf your bank calls back, press 1 to confirm and enter your UPI PIN. Flowpay will show the result as soon as your bank\'s confirmation SMS arrives.</string>
+    <string name="dialog_awaiting_message">Your payment request was sent to the UPI service.\n\nIf your bank calls back, press 1 to confirm and enter your UPI PIN. OffPay will show the result as soon as your bank\'s confirmation SMS arrives.</string>
     <string name="action_ok">OK</string>
     <string name="action_got_it">Got it</string>
     <string name="action_transfer">Transfer</string>
@@ -164,7 +164,7 @@
     <string name="overlay_terminate">Cancel payment</string>
     <string name="overlay_connecting">Connecting to the UPI service…</string>
     <string name="overlay_sending_request">Sending your payment request…</string>
-    <string name="overlay_pin_notice">Flowpay never asks for your UPI PIN. Your bank will call you — enter your PIN on that call.</string>
+    <string name="overlay_pin_notice">OffPay never asks for your UPI PIN. Your bank will call you — enter your PIN on that call.</string>
     <string name="overlay_request_sent">Request sent. Waiting for your bank\'s confirmation SMS…</string>
     <string name="amount_rupees">₹%1$s</string>
     <string name="percent_format">%1$d%%</string>
