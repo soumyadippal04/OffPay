@@ -15,7 +15,7 @@ are not backported — update to the newest release.
 
 ## Builds and signing
 
-Download published APKs only from this repository's [GitHub Releases](https://github.com/soumyadippal04/Flowpay/releases), or build from source using [Running it](README.md#running-it).
+Download published APKs only from this repository's [GitHub Releases](https://github.com/soumyadippal04/OffPay/releases), or build from source using [Running it](README.md#running-it).
 
 The current OffPay development APK is signed with a locally generated development key, not an established official publisher key. Its signing certificate SHA-256 digest is:
 

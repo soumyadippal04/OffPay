@@ -16,7 +16,7 @@ Thanks for your interest in contributing. This guide covers everything you need 
 ## First-time setup
 
 ```bash
-git clone https://github.com/soumyadippal04/Flowpay.git OffPay
+git clone https://github.com/soumyadippal04/OffPay.git OffPay
 cd OffPay
 ```
 

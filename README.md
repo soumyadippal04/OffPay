@@ -2,7 +2,7 @@
 
 *An Android app that brings UPI payments to users with no internet, using `*99#` USSD and UPI 123Pay (IVR) rails.*
 
-![Build](https://github.com/soumyadippal04/Flowpay/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/soumyadippal04/OffPay/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
@@ -124,7 +124,7 @@ The pieces worth reading if you're poking around:
 ## Running it
 
 ```bash
-git clone https://github.com/soumyadippal04/Flowpay.git OffPay
+git clone https://github.com/soumyadippal04/OffPay.git OffPay
 cd OffPay
 echo "sdk.dir=$ANDROID_HOME" > local.properties
 ./gradlew installDebug
@@ -138,7 +138,7 @@ If you want to skim the code without running it, the build also works without an
 
 **Signed release build:** copy `keystore.properties.example` to `keystore.properties`, fill in your signing-key details, then run `./gradlew assembleRelease`. The `keystore.properties` file and any `*.jks`/`*.keystore` files are gitignored, so signing material is never committed. Without a keystore, `assembleRelease` stops rather than handing you an unsigned, uninstallable APK — pass `-PallowUnsigned` if that's what you actually want.
 
-**Android app:** we'll be sharing an updated version of OffPay on [GitHub Releases](https://github.com/soumyadippal04/Flowpay/releases). In the meantime, you can build from source using the steps above.
+**Android app:** we'll be sharing an updated version of OffPay on [GitHub Releases](https://github.com/soumyadippal04/OffPay/releases). In the meantime, you can build from source using the steps above.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and PR conventions, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the system fits together, [docs/FAQ.md](docs/FAQ.md) for the trust/permissions questions, [docs/TESTING.md](docs/TESTING.md) for how outcomes are verified, [SECURITY.md](SECURITY.md) for vulnerability disclosure, [CHANGELOG.md](CHANGELOG.md) for release history, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards, and [LEGAL.md](LEGAL.md) for the full terms.
 

@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/soumyadippal04/Flowpay/blob/main/SECURITY.md
+    url: https://github.com/soumyadippal04/OffPay/blob/main/SECURITY.md
     about: Read OffPay's security policy for private reporting instructions. Do not report vulnerabilities in public issues.
