@@ -203,9 +203,14 @@ class QRScannerActivity : ComponentActivity() {
                 topBar.layoutParams = it
             }
             (bottomActionBar.layoutParams as? ViewGroup.MarginLayoutParams)?.let {
-                it.bottomMargin = bars.bottom +
-                    resources.getDimensionPixelSize(R.dimen.qr_bottom_bar_gap)
+                it.bottomMargin = resources.getDimensionPixelSize(R.dimen.qr_chrome_gap)
                 bottomActionBar.layoutParams = it
+            }
+            findViewById<View>(R.id.creatorCredit).let { credit ->
+                (credit.layoutParams as? ViewGroup.MarginLayoutParams)?.let {
+                    it.bottomMargin = bars.bottom + resources.getDimensionPixelSize(R.dimen.qr_chrome_gap)
+                    credit.layoutParams = it
+                }
             }
             windowInsets
         }

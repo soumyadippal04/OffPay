@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
-    <!-- An open payment ring and lightning bolt: OffPay's offline-first mark. -->
+    <!-- OffPay's O, a forward payment arrow and a rupee. Fits adaptive-icon masks. -->
     <path android:fillColor="@android:color/transparent"
-        android:strokeColor="#86B5FF" android:strokeWidth="8"
-        android:strokeLineCap="round"
-        android:pathData="M69,31 A28,28 0,1 0,78,64" />
-    <path android:fillColor="#FFFFFF"
-        android:pathData="M60,28 L43,57 L55,57 L49,79 L73,46 L59,46 Z" />
+        android:strokeWidth="5.5" android:strokeLineCap="round"
+        android:pathData="M78,54 A24,24 0,1 1,75,42 M76,30 L76,42 L68,42">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear"
+                android:startX="30" android:startY="30"
+                android:endX="78" android:endY="78">
+                <item android:offset="0" android:color="#92FFE0" />
+                <item android:offset="1" android:color="#6AA9FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF" android:strokeWidth="3.5"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M45,42 L60,42 M45,49 L60,49 M48,42 C60,42 61,56 46,56 L59,68" />
 </vector>

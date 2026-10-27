@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.offpay.app.R
 import com.offpay.app.data.Transaction
+import com.offpay.app.ui.components.CreatorCredit
 import com.offpay.app.ui.components.TransactionDetailDialog
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
@@ -174,6 +175,7 @@ fun TransactionHistoryScreen(
                     .background(MaterialTheme.colorScheme.background)
                     .statusBarsPadding()
                     .navigationBarsPadding()
+                    .imePadding()
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -453,6 +455,7 @@ fun TransactionHistoryScreen(
                         }
                     }
                 }
+                CreatorCredit()
             }
         }
     }

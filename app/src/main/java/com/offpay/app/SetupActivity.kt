@@ -30,8 +30,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -44,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.offpay.app.helpers.SetupHelper
 import com.offpay.app.managers.FirstLaunchPermissions
+import com.offpay.app.ui.components.CreatorCredit
+import com.offpay.app.ui.components.glassButtonSurface
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
@@ -200,7 +200,7 @@ fun SetupScreen(setupHelper: SetupHelper) {
                 }
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            CreatorCredit(modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
@@ -743,31 +743,12 @@ fun CompleteSetupButton(
     enabled: Boolean,
     onCompleteSetup: () -> Unit
 ) {
-    val accent = LocalOffPayAccentTheme.current
-    val buttonShape = RoundedCornerShape(16.dp)
-
-    val gradientColors = if (enabled) {
-        listOf(accent.headerGradientStart, accent.headerGradientEnd)
-    } else {
-        listOf(OffPayLightGray, OffPayMediumGray)
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(
-                brush = Brush.linearGradient(gradientColors),
-                shape = buttonShape
-            )
-            .border(
-                width = 1.dp,
-                color = OffPayOnGradient.copy(alpha = if (enabled) 0.15f else 0.05f),
-                shape = buttonShape
-            )
-            .clip(buttonShape)
-            .clickable(enabled = enabled) { onCompleteSetup() }
-            .alpha(if (enabled) 1f else 0.4f),
+            .glassButtonSurface(enabled = enabled)
+            .clickable(enabled = enabled) { onCompleteSetup() },
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -776,7 +757,7 @@ fun CompleteSetupButton(
         ) {
             Text(
                 text = stringResource(R.string.complete_setup),
-                color = if (enabled) OffPayOnGradient else OffPayTextWhite,
+                color = if (enabled) OffPayOnGradient else OffPayTextLightGray,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-0.3).sp
@@ -785,7 +766,7 @@ fun CompleteSetupButton(
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = null,
-                tint = OffPayOnGradient,
+                tint = if (enabled) OffPayOnGradient else OffPayTextLightGray,
                 modifier = Modifier.size(20.dp)
             )
         }

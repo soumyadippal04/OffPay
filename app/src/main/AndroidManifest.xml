@@ -93,6 +93,13 @@
                 android:value=".MainActivity" />
         </activity>
         
+        <activity
+            android:name=".ui.activities.AboutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OffPay"
+            android:label="@string/about_title"
+            android:parentActivityName=".ui.activities.SettingsActivity" />
+
         <!-- Call Overlay Service for UPI call protection -->
         <service
             android:name=".services.CallOverlayService"

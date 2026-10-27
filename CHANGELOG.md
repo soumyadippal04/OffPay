@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.4 - 2026-10-27
+
+- Add an About page with Soumyadip Pal's circular portrait, app information and version, accessible from Settings.
+- Add a restrained creator credit to every app screen and the in-call overlay.
+- Refine primary buttons with subtle glass highlights and improve home action-label contrast in both themes.
+- Replace the launcher icon with an adaptive OffPay payment-arrow and rupee mark, including a monochrome themed icon.
+- Remove the remaining legacy branding from app resource identifiers while retaining source licence notices.
+
 ## 1.0.3 - 2026-10-27
 
 - Ask for Phone, Camera, incoming SMS and Contacts consent once when setup first opens; never automatically grant permissions or repeatedly prompt after denial.

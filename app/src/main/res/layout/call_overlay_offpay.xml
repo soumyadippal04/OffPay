@@ -24,7 +24,7 @@
 
         <!-- OffPay Logo - Refined styling -->
         <TextView
-            android:id="@+id/flowPayLogo"
+            android:id="@+id/offPayLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
@@ -47,7 +47,7 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/flowPayLogo"
+            app:layout_constraintTop_toBottomOf="@id/offPayLogo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
             
@@ -262,6 +262,21 @@
             android:paddingHorizontal="16dp"
             android:elevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/mutedIndicator"
+            app:layout_constraintBottom_toTopOf="@id/creatorCredit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/creatorCredit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="@string/creator_credit"
+            android:textColor="@color/overlay_text_secondary"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/terminateButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="creator_credit">This app is made by Soumyadip Pal</string>
+    <string name="home_pay_contact">Pay Contact</string>
+    <string name="home_setup_upi123">Set up UPI 123 IVR</string>
+</resources>

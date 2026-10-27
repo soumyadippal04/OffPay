@@ -23,11 +23,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -92,10 +92,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -117,7 +117,9 @@ import com.offpay.app.payment.Upi123CallStringBuilder
 import com.offpay.app.payment.messageFor
 import com.offpay.app.ui.activities.SettingsActivity
 import com.offpay.app.ui.activities.TransactionHistoryActivity
+import com.offpay.app.ui.components.CreatorCredit
 import com.offpay.app.ui.components.TransactionDetailDialog
+import com.offpay.app.ui.components.glassButtonSurface
 import com.offpay.app.ui.dialogs.ContactPickerDialog
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
@@ -355,9 +357,10 @@ private fun ScanQrButton(
     isUssdReady: Boolean,
     isScanning: Boolean
 ) {
-    var isQRPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isQRPressed by interactionSource.collectIsPressedAsState()
     val qrButtonScale by animateFloatAsState(
-        targetValue = if (isQRPressed) 0.94f else 1f,
+        targetValue = if (isQRPressed) 0.97f else 1f,
         animationSpec = tween(durationMillis = 200),
         label = "QR Button Scale"
     )
@@ -369,41 +372,15 @@ private fun ScanQrButton(
         Box(
             modifier = Modifier
                 .size(70.dp)
-                .shadow(
-                    elevation = 12.dp,
-                    shape = CircleShape,
-                    ambientColor = LocalOffPayAccentTheme.current.headerGradientStart.copy(alpha = 0.3f),
-                    spotColor = LocalOffPayAccentTheme.current.headerGradientEnd.copy(alpha = 0.4f)
-                )
                 .scale(qrButtonScale)
-                .background(
-                    brush = if (isUssdReady) {
-                        Brush.linearGradient(
-                            colors = listOf(
-                                LocalOffPayAccentTheme.current.headerGradientStart,
-                                LocalOffPayAccentTheme.current.headerGradientEnd
-                            ),
-                            start = Offset(0f, 0f),
-                            end = Offset(1f, 1f)
-                        )
-                    } else {
-                        Brush.linearGradient(colors = listOf(OffPaySurfaceDim, OffPaySurfaceDim))
-                    },
-                    shape = CircleShape
-                )
-                .border(1.dp, OffPayOnGradient.copy(alpha = 0.15f), CircleShape)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            if (!isScanning) {
-                                isQRPressed = true
-                                tryAwaitRelease()
-                                isQRPressed = false
-                            }
-                        },
-                        onTap = { if (!isScanning) onQRScanClick() }
-                    )
-                },
+                .glassButtonSurface(shape = CircleShape, enabled = isUssdReady)
+                .clickable(
+                    enabled = !isScanning,
+                    role = Role.Button,
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClick = onQRScanClick
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -428,11 +405,8 @@ private fun ScanQrButton(
             },
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (isUssdReady) OffPayOnGradient else OffPayTextLightGray,
-            textAlign = TextAlign.Center,
-            style = TextStyle(
-                shadow = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), 3f)
-            )
+            color = OffPayTextWhite,
+            textAlign = TextAlign.Center
         )
     }
 
@@ -446,12 +420,12 @@ private fun ScanQrButton(
             modifier = Modifier
                 .width(50.dp)
                 .height(1.dp)
-                .background(Color.White.copy(alpha = 0.3f))
+                .background(MaterialTheme.colorScheme.outlineVariant)
         )
         Spacer(modifier = Modifier.width(12.dp))
         Box(
             modifier = Modifier
-                .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                 .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
             Text(
@@ -466,7 +440,7 @@ private fun ScanQrButton(
             modifier = Modifier
                 .width(50.dp)
                 .height(1.dp)
-                .background(Color.White.copy(alpha = 0.3f))
+                .background(MaterialTheme.colorScheme.outlineVariant)
         )
     }
 }
@@ -477,9 +451,10 @@ private fun PayContactButton(
     onPayContactClick: () -> Unit,
     isUpi123Ready: Boolean
 ) {
-    var isPayPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPayPressed by interactionSource.collectIsPressedAsState()
     val payButtonScale by animateFloatAsState(
-        targetValue = if (isPayPressed) 0.94f else 1f,
+        targetValue = if (isPayPressed) 0.97f else 1f,
         animationSpec = tween(durationMillis = 200),
         label = "Pay Button Scale"
     )
@@ -493,62 +468,32 @@ private fun PayContactButton(
         Box(
             modifier = Modifier
                 .size(70.dp)
-                .shadow(
-                    elevation = if (isUpi123Ready) 12.dp else 0.dp,
-                    shape = RoundedCornerShape(20.dp),
-                    ambientColor = LocalOffPayAccentTheme.current.headerGradientStart.copy(alpha = 0.3f),
-                    spotColor = LocalOffPayAccentTheme.current.headerGradientEnd.copy(alpha = 0.4f)
-                )
                 .scale(payButtonScale)
-                .background(
-                    brush = if (isUpi123Ready) {
-                        Brush.linearGradient(
-                            colors = listOf(
-                                LocalOffPayAccentTheme.current.headerGradientStart,
-                                LocalOffPayAccentTheme.current.headerGradientEnd
-                            ),
-                            start = Offset(0f, 0f),
-                            end = Offset(1f, 1f)
-                        )
-                    } else {
-                        Brush.linearGradient(
-                            colors = listOf(OffPayMediumGray, OffPayDarkGray),
-                            start = Offset(0f, 0f),
-                            end = Offset(1f, 1f)
-                        )
-                    },
-                    shape = RoundedCornerShape(20.dp)
-                )
-                .border(1.dp, OffPayOnGradient.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            isPayPressed = true
-                            tryAwaitRelease()
-                            isPayPressed = false
-                        },
-                        onTap = { onPayContactClick() }
-                    )
-                },
+                .glassButtonSurface(shape = RoundedCornerShape(20.dp), enabled = isUpi123Ready)
+                .clickable(
+                    role = Role.Button,
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClick = onPayContactClick
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = if (isUpi123Ready) Icons.Default.Person else Icons.Default.Lock,
-                contentDescription = if (isUpi123Ready) "Pay Contact" else "Set up UPI 123 IVR",
+                contentDescription = stringResource(
+                    if (isUpi123Ready) R.string.home_pay_contact else R.string.home_setup_upi123
+                ),
                 tint = if (isUpi123Ready) OffPayOnGradient else OffPayTextLightGray,
                 modifier = Modifier.size(32.dp)
             )
         }
 
         Text(
-            text = if (isUpi123Ready) "Pay Contact" else "Set up UPI 123 IVR",
+            text = stringResource(if (isUpi123Ready) R.string.home_pay_contact else R.string.home_setup_upi123),
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (isUpi123Ready) OffPayOnGradient else OffPayTextLightGray,
-            textAlign = TextAlign.Center,
-            style = TextStyle(
-                shadow = Shadow(Color.Black.copy(alpha = 0.6f), Offset(0f, 1f), 3f)
-            )
+            color = OffPayTextWhite,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -1100,7 +1045,7 @@ fun MainScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                CreatorCredit(modifier = Modifier.padding(top = 8.dp))
             }
 
             // Detail dialog for a tapped Recent Payments row — the same

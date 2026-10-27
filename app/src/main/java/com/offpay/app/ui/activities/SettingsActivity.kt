@@ -49,6 +49,7 @@ import com.offpay.app.constants.PermissionConstants
 import com.offpay.app.data.SettingsRepository
 import com.offpay.app.managers.FirstLaunchPermissions
 import com.offpay.app.repository.TransactionRepository
+import com.offpay.app.ui.components.CreatorCredit
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
@@ -408,6 +409,10 @@ fun SettingsScreen(
                 item { SectionHeader("ABOUT") }
                 item {
                     GroupCard {
+                        AboutSettingsRow(
+                            onClick = { context.startActivity(Intent(context, AboutActivity::class.java)) }
+                        )
+                        GroupDivider()
                         SettingsRow(
                             icon = Icons.Default.Info,
                             title = "Version",
@@ -424,7 +429,7 @@ fun SettingsScreen(
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { CreatorCredit() }
             }
         }
     }
@@ -562,6 +567,50 @@ private fun GroupDivider() {
         thickness = 0.5.dp,
         modifier = Modifier.padding(start = 56.dp)
     )
+}
+
+@Composable
+private fun AboutSettingsRow(onClick: () -> Unit) {
+    val accent = LocalOffPayAccentTheme.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.size(32.dp).clip(CircleShape).background(accent.primary.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = accent.primary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Column(modifier = Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+            Text(
+                text = stringResource(R.string.about_title),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = OffPayTextWhite
+            )
+            Text(
+                text = stringResource(R.string.about_settings_summary),
+                modifier = Modifier.padding(top = 4.dp),
+                fontSize = 12.sp,
+                color = OffPayTextLightGray
+            )
+        }
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = OffPayDisabledGray,
+            modifier = Modifier.size(20.dp)
+        )
+    }
 }
 
 @Composable

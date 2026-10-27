@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="about_title">About OffPay</string>
+    <string name="about_back">Back</string>
+    <string name="about_settings_summary">Creator &amp; app info</string>
+    <string name="about_creator_name">Soumyadip Pal</string>
+    <string name="about_creator_role">Creator of OffPay</string>
+    <string name="about_creator_photo">Profile photo of Soumyadip Pal</string>
+    <string name="about_tagline">A simpler way to access offline UPI payments.</string>
+    <string name="about_description">OffPay helps you access your bank\'s *99# and UPI 123PAY payment flows over your mobile network. A compatible Indian SIM and a UPI-linked bank account are required. Your bank handles each payment and your UPI PIN.</string>
+    <string name="about_version_label">Version</string>
+</resources>

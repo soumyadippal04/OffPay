@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
-**OffPay** pairs offline payment rails with a brighter blue interface and a new lightning-ring identity. Android package: `com.offpay.app`.
+**OffPay**, maintained and personalised by **Soumyadip Pal**, pairs offline payment rails with a bright blue interface, light and dark modes, and a rupee-and-payment-arrow identity. The in-app About page introduces the creator. Android package: `com.offpay.app`.
 
 OffPay tackles a problem millions of people in India hit every day: UPI payments break the moment the internet drops. It puts a clean, smartphone-native UI on top of the offline payment rails — `*99#` USSD and UPI 123Pay — that already ship on every Indian phone but stay buried behind menus almost nobody uses.
 

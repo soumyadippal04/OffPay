@@ -75,7 +75,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/creatorCredit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -256,11 +256,27 @@
         android:background="@drawable/terminate_button_background"
         android:src="@drawable/ic_close"
         android:visibility="gone"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="20dp"
         android:padding="12dp"
         android:contentDescription="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/creatorCredit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/creatorCredit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
+        android:gravity="center"
+        android:background="@drawable/creator_credit_scrim"
+        android:text="@string/creator_credit"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

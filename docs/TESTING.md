@@ -161,3 +161,16 @@ Toggle Settings → Appearance → Dark mode. Check Settings, home, history, dia
 and a payment result, then restart the app and confirm the selection remains.
 Camera-preview controls intentionally retain high-contrast colours over the live
 image. Physical-device checks are required in addition to the JVM tests.
+
+## About and visual identity
+
+Open Settings → About OffPay and check the circular portrait, Soumyadip Pal's name,
+app description and current version. Verify the creator credit on home, setup,
+configuration tests, Settings, About, history, the QR scanner, payment results and
+the in-call overlay. Check both themes, a small display, large text and gesture
+navigation; credits must not cover controls or system bars. The About portrait is
+packaged locally and needs no network access.
+
+Check the payment-arrow/rupee launcher icon with circular and rounded-square masks
+and with Android's themed icons enabled. Main actions should have a restrained
+glass highlight, readable labels and clear disabled/pressed states.

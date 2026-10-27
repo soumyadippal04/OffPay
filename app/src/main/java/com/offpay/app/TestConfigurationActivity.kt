@@ -41,6 +41,8 @@ import com.offpay.app.constants.PermissionConstants
 import com.offpay.app.helpers.SetupHelper
 import com.offpay.app.helpers.TestConfigurationHelper
 import com.offpay.app.managers.CallType
+import com.offpay.app.ui.components.CreatorCredit
+import com.offpay.app.ui.components.glassButtonSurface
 import com.offpay.app.ui.dialogs.Upi123ProgressDialog
 import com.offpay.app.ui.dialogs.UssdProgressDialog
 import com.offpay.app.ui.theme.BlueAccentTheme
@@ -48,7 +50,6 @@ import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayAccentGreen
 import com.offpay.app.ui.theme.OffPayDarkGray
 import com.offpay.app.ui.theme.OffPayLightGray
-import com.offpay.app.ui.theme.OffPayMediumGray
 import com.offpay.app.ui.theme.OffPayOnGradient
 import com.offpay.app.ui.theme.OffPayStatusWarning
 import com.offpay.app.ui.theme.OffPaySurfaceDim
@@ -176,7 +177,6 @@ class TestConfigurationActivity : ComponentActivity() {
 @Composable
 fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
     val context = LocalContext.current
-    val accent = LocalOffPayAccentTheme.current
 
     // Get test states from helper
     val testStates = testHelper.getTestStates()
@@ -359,25 +359,8 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(58.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        brush = if (canContinue) {
-                            Brush.horizontalGradient(
-                                colors = listOf(accent.headerGradientStart, accent.headerGradientEnd)
-                            )
-                        } else {
-                            Brush.horizontalGradient(
-                                colors = listOf(OffPayLightGray, OffPayMediumGray)
-                            )
-                        }
-                    )
-                    .then(
-                        if (canContinue) {
-                            Modifier.clickable { testHelper.continueToMain() }
-                        } else {
-                            Modifier
-                        }
-                    ),
+                    .glassButtonSurface(enabled = canContinue)
+                    .clickable(enabled = canContinue) { testHelper.continueToMain() },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -407,7 +390,7 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
                     .padding(8.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            CreatorCredit(modifier = Modifier.padding(top = 8.dp))
         }
 
         // USSD Progress Dialog
