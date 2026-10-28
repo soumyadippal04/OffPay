@@ -67,7 +67,8 @@ jobs:
           # Payment-critical code must never interpolate raw SMS bodies or
           # full identifiers into logcat. Catches reintroductions at CI time.
           ! grep -rnE 'Log\.[dwie]\(.*\$\{?(body|rawMessage|messageBody)' \
-            app/src/main/java/com/offpay/app/{payment,receivers,services,helpers}/ \
+            app/src/main/java/com/offpay/app/{payment,receivers,helpers}/ \
+            app/src/sms/java/com/offpay/app/receivers/ \
             || (echo "::error::Log statement leaks SMS body content" && exit 1)
 
       - name: Palette gate — no inline colors outside the theme
@@ -75,7 +76,7 @@ jobs:
           # Every Compose color comes from ui/theme/Color.kt tokens, and every
           # layout color from colors.xml. Inline literals drift screens apart
           # (the codebase once had 200 of them across 14 near-identical greys).
-          ! grep -rn 'Color(0x' app/src/main/java/com/offpay/app \
+          ! grep -rn 'Color(0x' app/src/{main,sms,compat}/java/com/offpay/app \
             --include='*.kt' | grep -v '/ui/theme/' \
             || (echo "::error::Inline Color(0x…) outside ui/theme — use a design token" && exit 1)
           ! grep -rnE '"#[0-9A-Fa-f]{6,8}"' app/src/main/res/layout/ \
@@ -89,7 +90,7 @@ jobs:
           # Ratchet for the common single-line `Text("literal")` form; the
           # leading [^A-Za-z0-9_] avoids matching e.g. ClipData.newPlainText(.
           ! grep -rnE '(^|[^A-Za-z0-9_])Text\(\s*(text\s*=\s*)?"[^"]' \
-            app/src/main/java/com/offpay/app --include='*.kt' \
+            app/src/{main,sms,compat}/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string in a Compose Text(…) — move it to strings.xml" && exit 1)
           # The View layer escapes both of the gates above: lint's
           # HardcodedText never leaves XML, and the Compose ratchet only
@@ -98,14 +99,14 @@ jobs:
           # ${e.message} — which in a minified release renders an
           # R8-obfuscated class name to the user. Cover the View surfaces too.
           ! grep -rnE 'Toast\.makeText\([^,]+,\s*"|\.text\s*=\s*"|setText\("' \
-            app/src/main/java/com/offpay/app --include='*.kt' \
+            app/src/{main,sms,compat}/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string in a Toast/TextView — move it to strings.xml and pass the resource id" && exit 1)
           # And the app's own UI-callback helpers, which route to a Toast one
           # frame later and so hid another 23 literals from the check above.
           # This list is the project's user-facing message entry points; add
           # to it when a new one appears.
           ! grep -rnE '(showToast|showError|showMessage|showInvalidQrCode)\(\s*"' \
-            app/src/main/java/com/offpay/app --include='*.kt' \
+            app/src/{main,sms,compat}/java/com/offpay/app --include='*.kt' \
             || (echo "::error::Hardcoded string passed to a UI callback — move it to strings.xml and pass getString(…)" && exit 1)
 
       - name: Run unit tests
@@ -115,7 +116,7 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Run lint
-        run: ./gradlew :app:lintDebug --no-daemon --stacktrace
+        run: ./gradlew :app:lintDebug :app:lintCompat --no-daemon --stacktrace
 
       - name: Run detekt
         run: ./gradlew detekt --no-daemon --stacktrace
@@ -123,8 +124,8 @@ jobs:
       - name: Verify payment-core coverage floor
         run: ./gradlew koverVerify --no-daemon --stacktrace
 
-      - name: Assemble release APK (unsigned) for the size gate
-        run: ./gradlew assembleRelease -PallowUnsigned --no-daemon --stacktrace
+      - name: Assemble both APK editions (unsigned) for the size gate
+        run: ./gradlew assembleRelease assembleCompat -PallowUnsigned --no-daemon --stacktrace
 
       - name: Release APK size must not grow
         run: |
@@ -134,18 +135,20 @@ jobs:
           # product requirement, not a nice-to-have — a 62 MB APK (the size
           # before removing three blanket ProGuard keeps and scoping release
           # to arm64-v8a/armeabi-v7a) is a defect for that audience, not a nit.
-          APK=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
-          if [ -z "$APK" ]; then
-            echo "::error::No release APK found — the size gate cannot be evaluated."
-            exit 1
-          fi
-          BYTES=$(stat -c%s "$APK")
-          echo "Release APK: $((BYTES / 1024 / 1024)) MB ($BYTES bytes)"
-          BUDGET=18874368 # 18 MB — ~15% headroom over the measured 16.4 MB
-          if [ "$BYTES" -gt "$BUDGET" ]; then
-            echo "::error::Release APK ($((BYTES / 1024 / 1024)) MB) exceeded the 18 MB budget. Shrink it instead of raising the ceiling."
-            exit 1
-          fi
+          BUDGET=18874368 # 18 MiB per APK, unchanged for both editions
+          for EDITION in release compat; do
+            APK="app/build/outputs/apk/$EDITION/app-$EDITION-unsigned.apk"
+            if [ ! -f "$APK" ]; then
+              echo "::error::No $EDITION APK found — the size gate cannot be evaluated."
+              exit 1
+            fi
+            BYTES=$(stat -c%s "$APK")
+            echo "$EDITION APK: $BYTES bytes"
+            if [ "$BYTES" -gt "$BUDGET" ]; then
+              echo "::error::$EDITION APK exceeded the 18 MiB budget. Shrink it instead of raising the ceiling."
+              exit 1
+            fi
+          done
 
       - name: Lint baseline must not grow
         run: |
