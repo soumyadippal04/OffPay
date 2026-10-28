@@ -1,14 +1,16 @@
 # OffPay APK downloads
 
-This branch distributes signed APKs. Source is on the main branch.
+Signed development APKs are distributed on this branch. Source is on `main`.
 
-## OffPay 1.0.4
+## OffPay 1.0.5 — testing release
 
-- About OffPay introduces Soumyadip Pal with a circular profile photo and app information.
-- A discreet creator credit appears on each screen. Primary buttons have subtle glass highlights, and the launcher uses a new payment-arrow and rupee icon.
-- Includes saved light/dark mode and first-launch Phone, Camera, incoming SMS and Contacts permission prompts. Android permission grants always require user consent.
-- Android 10+; ARM64 and 32-bit ARM; application ID `com.offpay.app`; version code 9.
-- Signed with the same local development key as OffPay 1.0.2 and 1.0.3, not an established official publisher key.
-- Debug/release builds, 164 tests per variant, lint, detekt, coverage, APK signature, alignment and package checks passed. Physical-device UI and payment checks remain outstanding.
+Choose one edition. Both use application ID `com.offpay.app`, version code 10, Android 10+, and the same development signing key as previous OffPay releases.
 
-Download [OffPay-1.0.4-release.apk](OffPay-1.0.4-release.apk) and verify it against [its SHA-256 checksum](OffPay-1.0.4-release.apk.sha256). Previous versions are retained for reference. Licence and original attribution notices remain in the source branch.
+- [Optional SMS edition](OffPay-1.0.5-release.apk): SMS confirmation is an explicit Settings opt-in. Payment handoff still works when SMS is blocked. [Checksum](OffPay-1.0.5-release.apk.sha256)
+- [Compatibility edition](OffPay-1.0.5-compat.apk): SMS and notification permissions/receiver are omitted. Check the bank's SMS/app for payment outcomes. [Checksum](OffPay-1.0.5-compat.apk.sha256)
+
+Both editions add prominent glass controls and spring press animations, a searchable directory of 714 NPCI-listed bank issuers (including Central Bank), and dialer/gallery/manual-entry fallbacks for declined permissions. Directory membership does not guarantee offline support for every bank or SIM. No overlay, call-state, end-call or audio-control permission is requested.
+
+All 198 tests passed in each of debug, release and compatibility variants (594 test runs); lint, detekt, coverage, signature, alignment and merged-manifest checks passed. Physical-device payment/UI and Play Protect verification remain outstanding. An earlier APK was reported as “Harmful app blocked”; these changes do not establish Google clearance. Do not disable protections to install a still-flagged APK. See the source branch's `docs/PLAY_PROTECT_REVIEW.md` for evidence and the official appeal route.
+
+Previous APKs remain for reference. Original licences and attribution notices remain in the source branch.
