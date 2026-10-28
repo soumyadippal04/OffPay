@@ -1,13 +1,36 @@
 # Testing OffPay
 
-OffPay's core claim — a payment outcome is only ever recorded from a
-confirming bank SMS, never from call duration — can't be end-to-end tested
-the way a normal app is: there's no test double for an Indian bank, a UPI
-switch, or a telco's IVR menu. This is OffPay's honest answer to "how do
-you know it works" without one.
+OffPay must never confuse a dialer handoff with proof of payment. Tests cover
+both optional bank-SMS confirmation and the no-SMS path, which records an
+explicitly Unverified attempt. Real bank menus, handset behaviour and Play
+Protect classification require device/Google checks in addition to JVM tests.
 
-Verification happens in four layers, each covering what the layer below it
-cannot.
+## 1.0.5 regression coverage
+
+- `PaymentDialerTest`: denied/OEM-blocked direct calls fall back without changing the phone URI; unavailable dialers report failure.
+- `TestConfigurationHandoffTest`: permission-free handoff exposes user confirmation, never automatic setup success.
+- `ReducedPermissionManifestTest`: edition-specific SMS declarations, no overlay/call-state/audio access, optional camera hardware.
+- `SmsConfirmationTest`: denied SMS remains unavailable; compatibility builds cannot enable it even with a simulated grant.
+- `ExternalConfirmationTest`: external handoff persists UNVERIFIED, no telephony/watchdog, no late callback can turn it into success.
+- SMS persistence regression tests hold the receiver until its specific confirmation write completes and propagate storage failures before notifying.
+- `PaymentAmountTest`: unknown QR amounts stay unknown.
+- `OfflineBankCatalogTest`: stable IDs, Central Bank/aliases, directory integrity and search.
+
+Build/test both editions with `./gradlew testDebugUnitTest testReleaseUnitTest
+testCompatUnitTest lintDebug lintCompat detekt koverVerify assembleRelease
+assembleCompat -PallowUnsigned`. Release signing is a separate required step
+when using `-PallowUnsigned`.
+
+On physical devices (including Nothing and Samsung), deny each optional permission
+and verify the corresponding dialer/gallery/manual-entry fallback. Enable optional
+SMS in Settings where allowed; confirm history updates without any overlay. Deny
+notifications and confirm records remain accessible in history. Test QR rotation,
+background/return and Done without duplicate calls or cancellation claims.
+Check larger fonts, light/dark themes, reduced animation settings and bank search.
+Record the exact Play Protect warning on each signed APK; passing unit tests is
+not evidence of Google clearance. Never disable device protections as a test step.
+
+The layers below also document retained SMS regression/debug tooling.
 
 ## Layer 1 — Hermetic unit tests (CI, every push)
 
@@ -152,7 +175,7 @@ denial/recreation without repeated prompts, and the app-settings fallback.
 `AppearanceSettingsTest` covers persistence and resetting the dark/light preference.
 `ThemeContrastTest` checks body-text and gradient contrast in the new palettes.
 
-On a device, verify a fresh install offers Phone, Camera, SMS and Contacts consent
+On a device, verify a fresh install offers optional Phone, Camera and Contacts consent
 once during setup. Declining must not restart the dialogs or stop setup. Grant a
 permission later through Settings; permanently denied permissions must open Android
 app settings. Upgrading an already configured install must not restart onboarding.

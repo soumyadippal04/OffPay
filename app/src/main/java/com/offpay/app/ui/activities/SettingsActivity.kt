@@ -12,13 +12,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,15 +40,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.offpay.app.BuildConfig
 import com.offpay.app.OffPayApplication
 import com.offpay.app.R
 import com.offpay.app.SetupActivity
+import com.offpay.app.constants.AppConstants
 import com.offpay.app.constants.PermissionConstants
+import com.offpay.app.data.Bank
+import com.offpay.app.data.OfflineBankCatalog
 import com.offpay.app.data.SettingsRepository
 import com.offpay.app.managers.FirstLaunchPermissions
 import com.offpay.app.repository.TransactionRepository
+import com.offpay.app.ui.components.BankSelectionDialog
 import com.offpay.app.ui.components.CreatorCredit
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
@@ -71,9 +76,35 @@ class SettingsActivity : ComponentActivity() {
     private var refreshTrigger = mutableIntStateOf(0)
     private val permissionHistory by lazy { FirstLaunchPermissions(this) }
 
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        refreshTrigger.intValue++
+        if (!granted) {
+            Toast.makeText(this, R.string.optional_sms_notifications_declined, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { _ -> refreshTrigger.intValue++ }
+    ) { permissions ->
+        refreshTrigger.intValue++
+        if (permissions[Manifest.permission.RECEIVE_SMS] == true) {
+            requestResultNotificationsIfNeeded()
+        }
+    }
+
+    private fun requestResultNotificationsIfNeeded() {
+        if (!BuildConfig.SMS_CONFIRMATION_AVAILABLE || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val permission = Manifest.permission.POST_NOTIFICATIONS
+        val prefs = getSharedPreferences(AppConstants.PREFS_NAME, Context.MODE_PRIVATE)
+        val granted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        if (!granted && !prefs.getBoolean(AppConstants.KEY_NOTIFICATIONS_ASKED, false)) {
+            prefs.edit { putBoolean(AppConstants.KEY_NOTIFICATIONS_ASKED, true) }
+            permissionHistory.recordRequest(arrayOf(permission))
+            notificationPermissionLauncher.launch(permission)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,34 +143,9 @@ class SettingsActivity : ComponentActivity() {
     }
 }
 
-// Data Classes
-data class Bank(
-    val id: String,
-    val name: String
-)
-
 data class SettingsState(
-    val selectedBank: Bank = banks.first(),
-    val ussdTimeout: Int = 30,
-    val smsDetectionEnabled: Boolean = true,
-    val overlayEnabled: Boolean = true,
-    val debugMode: Boolean = false,
-    val setupCompleted: Boolean = true,
+    val selectedBank: Bank = OfflineBankCatalog.findById("hdfc") ?: OfflineBankCatalog.banks.first(),
     val permissions: Map<String, Boolean> = emptyMap()
-)
-
-// Bank Data
-val banks = listOf(
-    Bank("hdfc", "HDFC Bank"),
-    Bank("sbi", "State Bank of India"),
-    Bank("icici", "ICICI Bank"),
-    Bank("axis", "Axis Bank"),
-    Bank("kotak", "Kotak Mahindra Bank"),
-    Bank("pnb", "Punjab National Bank"),
-    Bank("bob", "Bank of Baroda"),
-    Bank("yes", "Yes Bank"),
-    Bank("idbi", "IDBI Bank"),
-    Bank("canara", "Canara Bank")
 )
 
 // ViewModel
@@ -151,38 +157,22 @@ class SettingsViewModel : androidx.lifecycle.ViewModel() {
         state = state.copy(selectedBank = bank)
     }
 
-    fun toggleSmsDetection() {
-        state = state.copy(smsDetectionEnabled = !state.smsDetectionEnabled)
-    }
-
-    fun toggleOverlay() {
-        state = state.copy(overlayEnabled = !state.overlayEnabled)
-    }
-
     fun refreshPermissions(context: Context) {
+        fun granted(permission: String) =
+            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         val perms = mapOf(
-            "phone" to PermissionConstants.PHONE_PERMISSIONS.all {
-                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-            },
-            "camera" to (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED),
-            "sms" to (ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED),
-            "contacts" to (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED),
-            "overlay" to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Settings.canDrawOverlays(context) else true)
+            "phone" to granted(Manifest.permission.CALL_PHONE),
+            "camera" to granted(Manifest.permission.CAMERA),
+            "contacts" to granted(Manifest.permission.READ_CONTACTS),
+            "sms" to (BuildConfig.SMS_CONFIRMATION_AVAILABLE && granted(Manifest.permission.RECEIVE_SMS))
         )
         state = state.copy(permissions = perms)
     }
 
     fun loadFromRepository(settingsRepository: SettingsRepository) {
         val saved = settingsRepository.settingsFlow.value
-        val bank = banks.find { it.id == saved.bankId } ?: banks.first()
-        state = state.copy(
-            selectedBank = bank,
-            ussdTimeout = saved.ussdTimeout,
-            smsDetectionEnabled = saved.smsDetectionEnabled,
-            overlayEnabled = saved.overlayEnabled,
-            debugMode = saved.debugMode,
-            setupCompleted = saved.setupCompleted
-        )
+        val bank = OfflineBankCatalog.findById(saved.bankId) ?: Bank(saved.bankId, saved.bankId)
+        state = state.copy(selectedBank = bank)
     }
 }
 
@@ -342,13 +332,13 @@ fun SettingsScreen(
 
                 // ═══ PERMISSIONS ═══
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                item { SectionHeader("PERMISSIONS") }
+                item { SectionHeader(stringResource(R.string.settings_optional_permissions)) }
                 item {
                     GroupCard {
                         PermissionRow(
                             icon = Icons.Default.Phone,
-                            title = "Phone",
-                            subtitle = "Calls & phone state",
+                            title = stringResource(R.string.settings_phone_permission),
+                            subtitle = stringResource(R.string.settings_phone_permission_detail),
                             granted = state.permissions["phone"] ?: false,
                             onRequest = {
                                 onRequestPermissions(
@@ -359,8 +349,8 @@ fun SettingsScreen(
                         GroupDivider()
                         PermissionRow(
                             icon = Icons.Default.CameraAlt,
-                            title = "Camera",
-                            subtitle = "QR code scanning",
+                            title = stringResource(R.string.settings_camera_permission),
+                            subtitle = stringResource(R.string.settings_camera_permission_detail),
                             granted = state.permissions["camera"] ?: false,
                             onRequest = {
                                 onRequestPermissions(arrayOf(Manifest.permission.CAMERA))
@@ -368,26 +358,27 @@ fun SettingsScreen(
                         )
                         GroupDivider()
                         PermissionRow(
-                            icon = Icons.Default.Sms,
-                            title = "SMS",
-                            subtitle = "Bank payment confirmations",
-                            granted = state.permissions["sms"] ?: false,
-                            onRequest = {
-                                onRequestPermissions(arrayOf(Manifest.permission.RECEIVE_SMS))
-                            }
-                        )
-                        GroupDivider()
-                        PermissionRow(
                             icon = Icons.Default.Contacts,
-                            title = "Contacts",
-                            subtitle = "Pay by contact",
+                            title = stringResource(R.string.settings_contacts_permission),
+                            subtitle = stringResource(R.string.settings_contacts_permission_detail),
                             granted = state.permissions["contacts"] ?: false,
                             onRequest = {
                                 onRequestPermissions(arrayOf(Manifest.permission.READ_CONTACTS))
                             }
                         )
+                        if (BuildConfig.SMS_CONFIRMATION_AVAILABLE) {
+                            GroupDivider()
+                            PermissionRow(
+                                icon = Icons.Default.Sms,
+                                title = stringResource(R.string.optional_sms_permission_title),
+                                subtitle = stringResource(R.string.optional_sms_permission_detail),
+                                granted = state.permissions["sms"] ?: false,
+                                onRequest = { onRequestPermissions(arrayOf(Manifest.permission.RECEIVE_SMS)) }
+                            )
+                        }
                     }
                 }
+                item { BankConfirmationInfo() }
 
                 // ═══ ACTIONS ═══
                 item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -436,8 +427,8 @@ fun SettingsScreen(
 
     // Bank Picker Dialog
     if (showBankPicker) {
-        BankPickerDialog(
-            selectedBank = state.selectedBank,
+        BankSelectionDialog(
+            selectedBankId = state.selectedBank.id,
             onBankSelected = { bank ->
                 viewModel.updateBank(bank)
                 settingsRepository?.saveSettings(
@@ -698,151 +689,61 @@ private fun PermissionRow(
     onRequest: () -> Unit
 ) {
     val accent = LocalOffPayAccentTheme.current
-
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.Top
     ) {
-        // Icon
         Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(accent.primary.copy(alpha = 0.12f)),
+            modifier = Modifier.size(32.dp).clip(CircleShape).background(accent.primary.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = accent.primary,
-                modifier = Modifier.size(18.dp)
-            )
+            Icon(icon, contentDescription = null, tint = accent.primary, modifier = Modifier.size(18.dp))
         }
-
         Spacer(modifier = Modifier.width(12.dp))
-
-        // Title + subtitle
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = OffPayTextWhite
-            )
+            Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = OffPayTextWhite)
             Text(
                 text = subtitle,
-                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp),
+                style = MaterialTheme.typography.bodySmall,
                 color = OffPayTextLightGray
             )
-        }
-
-        // Status pill
-        if (granted) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
-            ) {
+            if (granted) {
                 Text(
-                    text = "Granted",
-                    color = MaterialTheme.colorScheme.tertiary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    text = stringResource(R.string.settings_permission_allowed),
+                    modifier = Modifier.padding(top = 12.dp),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
-            }
-        } else {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = accent.primary.copy(alpha = 0.12f),
-                modifier = Modifier.clickable(onClick = onRequest)
-            ) {
-                Text(
-                    text = "Grant",
-                    color = accent.primary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
+            } else {
+                TextButton(onClick = onRequest, modifier = Modifier.align(Alignment.End)) {
+                    Text(stringResource(R.string.settings_permission_allow))
+                }
             }
         }
     }
 }
 
 @Composable
-private fun BankPickerDialog(
-    selectedBank: Bank,
-    onBankSelected: (Bank) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val accent = LocalOffPayAccentTheme.current
-
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = OffPayDarkGray
-        ) {
-            Column(
-                modifier = Modifier.padding(vertical = 20.dp)
-            ) {
-                Text(
-                    text = "Select Bank",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = OffPayTextWhite,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
-                )
-
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 400.dp)
-                ) {
-                    items(banks) { bank ->
-                        val isSelected = bank.id == selectedBank.id
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onBankSelected(bank) }
-                                .padding(horizontal = 20.dp, vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = bank.name,
-                                fontSize = 15.sp,
-                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                color = if (isSelected) accent.primary else OffPayTextWhite,
-                                modifier = Modifier.weight(1f)
-                            )
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Selected",
-                                    tint = accent.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                        if (bank != banks.last()) {
-                            HorizontalDivider(
-                                color = OffPayMediumGray,
-                                thickness = 0.5.dp,
-                                modifier = Modifier.padding(horizontal = 20.dp)
-                            )
-                        }
+private fun BankConfirmationInfo() {
+    GroupCard {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = stringResource(R.string.settings_bank_confirmation),
+                style = MaterialTheme.typography.titleSmall,
+                color = OffPayTextWhite
+            )
+            Text(
+                text = stringResource(
+                    if (BuildConfig.SMS_CONFIRMATION_AVAILABLE) {
+                        R.string.optional_sms_confirmation_summary
+                    } else {
+                        R.string.settings_bank_confirmation_detail
                     }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(horizontal = 12.dp)
-                ) {
-                    Text(stringResource(R.string.action_cancel), color = OffPayTextLightGray)
-                }
-            }
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = OffPayTextLightGray
+            )
         }
     }
 }

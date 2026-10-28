@@ -3,7 +3,7 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:MainActivity.kt$@Composable fun PayContactDialog( onDismiss: () -&gt; Unit, onConfirm: (String, String) -&gt; Unit )</ID>
-    <ID>CyclomaticComplexMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainScreen( onInitiateTransfer: (String, String) -&gt; Unit, onQRScanClick: () -&gt; Unit, onRequestOverlayPermission: () -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainScreen( onInitiateTransfer: (String, String) -&gt; Unit, onQRScanClick: () -&gt; Unit )</ID>
     <ID>CyclomaticComplexMethod:PaymentResultActivity.kt$PaymentResultActivity$private fun loadTransactionData()</ID>
     <ID>CyclomaticComplexMethod:SettingsActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( viewModel: SettingsViewModel = viewModel(), onBackPressed: () -&gt; Unit, settingsRepository: SettingsRepository? = null, onRequestPermissions: (Array&lt;String&gt;) -&gt; Unit = {}, refreshTrigger: MutableIntState = mutableIntStateOf(0) )</ID>
     <ID>CyclomaticComplexMethod:TestConfigurationActivity.kt$@Composable fun TestButton( title: String, code: String, description: String, isCompleted: Boolean, isTesting: Boolean, isUnsupported: Boolean = false, onClick: () -&gt; Unit )</ID>
@@ -11,12 +11,11 @@
     <ID>CyclomaticComplexMethod:TestConfigurationHelper.kt$TestConfigurationHelper$fun initiateCall(callType: CallType)</ID>
     <ID>CyclomaticComplexMethod:TransactionHistoryActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TransactionHistoryScreen( onBackClick: () -&gt; Unit )</ID>
     <ID>LargeClass:QRScannerActivity.kt$QRScannerActivity : ComponentActivity</ID>
-    <ID>LongMethod:CallOverlayService.kt$CallOverlayService$private fun createSystemOverlay(phoneNumber: String, amount: String)</ID>
     <ID>LongMethod:ContactPickerDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ContactPickerDialog( onDismiss: () -&gt; Unit, onContactSelected: (Contact) -&gt; Unit )</ID>
     <ID>LongMethod:MainActivity.kt$@Composable fun PayContactDialog( onDismiss: () -&gt; Unit, onConfirm: (String, String) -&gt; Unit )</ID>
     <ID>LongMethod:MainActivity.kt$@Composable private fun ScanQrButton( onQRScanClick: () -&gt; Unit, isUssdReady: Boolean, isScanning: Boolean )</ID>
     <ID>LongMethod:MainActivity.kt$@Composable private fun PayContactButton( onPayContactClick: () -&gt; Unit, isUpi123Ready: Boolean )</ID>
-    <ID>LongMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainScreen( onInitiateTransfer: (String, String) -&gt; Unit, onQRScanClick: () -&gt; Unit, onRequestOverlayPermission: () -&gt; Unit )</ID>
+    <ID>LongMethod:MainActivity.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainScreen( onInitiateTransfer: (String, String) -&gt; Unit, onQRScanClick: () -&gt; Unit )</ID>
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>LongMethod:PaymentResultActivity.kt$PaymentResultActivity$private fun loadTransactionData()</ID>
     <ID>LongMethod:QRScannerActivity.kt$QRScannerActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
@@ -44,21 +43,6 @@
     <ID>LongParameterList:UssdProgressDialog.kt$( isVisible: Boolean, progressMessage: String = stringResource(R.string.ussd_dlg_initializing), showConfigurationOptions: Boolean = false, onConfigured: () -&gt; Unit = {}, onNotConfigured: () -&gt; Unit = {}, onDismiss: () -&gt; Unit = {}, onDoesNotWork: () -&gt; Unit = {} )</ID>
     <ID>LongParameterList:UssdProgressDialog.kt$( progressMessage: String, showConfigurationOptions: Boolean = false, onConfigured: () -&gt; Unit = {}, onNotConfigured: () -&gt; Unit = {}, onDismiss: () -&gt; Unit = {}, onDoesNotWork: () -&gt; Unit = {} )</ID>
     <ID>LoopWithTooManyJumpStatements:SmsTransactionParser.kt$SmsTransactionParser$for</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$0.3f</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$0.7f</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$1.02f</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$1.5f</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$10</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$1000</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$100f</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$150</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$200</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$2000</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$3</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$4</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService$800</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService.Companion$100</ID>
-    <ID>MagicNumber:CallOverlayService.kt$CallOverlayService.Companion$500</ID>
     <ID>MagicNumber:CallStateCoordinatorTest.kt$CallStateCoordinatorTest$10_000L</ID>
     <ID>MagicNumber:CallStateCoordinatorTest.kt$CallStateCoordinatorTest$1_000L</ID>
     <ID>MagicNumber:CallStateCoordinatorTest.kt$CallStateCoordinatorTest$4_000L</ID>
@@ -409,7 +393,6 @@
     <ID>PackageNaming:QRScannerActivity.kt$package com.offpay.app.features.qr_scanner.presentation</ID>
     <ID>ReturnCount:CallManager.kt$CallManager$fun initiateUPI123Call(phoneNumber: String, amount: String): Boolean</ID>
     <ID>ReturnCount:CallManager.kt$CallManager$fun terminateCall(): Boolean</ID>
-    <ID>ReturnCount:CallOverlayService.kt$CallOverlayService$fun onCallDetected()</ID>
     <ID>ReturnCount:ContextExt.kt$fun Context.findComponentActivity(): ComponentActivity?</ID>
     <ID>ReturnCount:MainActivityHelper.kt$MainActivityHelper$fun initiateTransfer(phoneNumber: String, amount: String)</ID>
     <ID>ReturnCount:MainActivityHelper.kt$MainActivityHelper$private fun warnIfVoiceSimMismatch()</ID>
@@ -434,8 +417,6 @@
     <ID>SwallowedException:QRCodeParser.kt$QRCodeParser$e: UnsupportedOperationException</ID>
     <ID>SwallowedException:TestResults.kt$TestResultsManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:CallManager.kt$CallManager$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:CallOverlayService.kt$CallOverlayService$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:CallOverlayService.kt$CallOverlayService.Companion$e: Exception</ID>
     <ID>TooGenericExceptionCaught:CallStateCoordinator.kt$CallStateCoordinator$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ContactPickerDialog.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DatabaseEncryptionMigrator.kt$DatabaseEncryptionMigrator$e: Exception</ID>
@@ -450,7 +431,6 @@
     <ID>TooGenericExceptionCaught:TransactionDialogManager.kt$TransactionDialogManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:TransactionViewModel.kt$TransactionViewModel$e: Exception</ID>
     <ID>TooManyFunctions:CallManager.kt$CallManager</ID>
-    <ID>TooManyFunctions:CallOverlayService.kt$CallOverlayService : Service</ID>
     <ID>TooManyFunctions:MainActivityHelper.kt$MainActivityHelper</ID>
     <ID>TooManyFunctions:OverlayLogger.kt$OverlayLogger</ID>
     <ID>TooManyFunctions:PaymentResultActivity.kt$PaymentResultActivity : AppCompatActivity</ID>

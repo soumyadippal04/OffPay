@@ -42,7 +42,7 @@ import com.offpay.app.helpers.SetupHelper
 import com.offpay.app.helpers.TestConfigurationHelper
 import com.offpay.app.managers.CallType
 import com.offpay.app.ui.components.CreatorCredit
-import com.offpay.app.ui.components.glassButtonSurface
+import com.offpay.app.ui.components.glassButton
 import com.offpay.app.ui.dialogs.Upi123ProgressDialog
 import com.offpay.app.ui.dialogs.UssdProgressDialog
 import com.offpay.app.ui.theme.BlueAccentTheme
@@ -359,8 +359,7 @@ fun TestConfigurationScreen(testHelper: TestConfigurationHelper) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(58.dp)
-                    .glassButtonSurface(enabled = canContinue)
-                    .clickable(enabled = canContinue) { testHelper.continueToMain() },
+                    .glassButton(enabled = canContinue) { testHelper.continueToMain() },
                 contentAlignment = Alignment.Center
             ) {
                 Text(

@@ -31,16 +31,19 @@ class FirstLaunchPermissionsTest {
     }
 
     @Test
-    fun `first launch requests all four feature groups without inbox access`() {
+    fun `first launch requests only optional feature access without restricted permissions`() {
         var requested = emptySet<String>()
         FirstLaunchPermissions(app).requestIfNeeded { requested = it.toSet() }
         assertTrue(requested.containsAll(PermissionConstants.PHONE_PERMISSIONS.toList()))
         assertTrue(
             requested.containsAll(
-                listOf(Manifest.permission.CAMERA, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS)
+                listOf(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
             )
         )
         assertFalse(requested.contains(Manifest.permission.READ_SMS))
+        assertFalse(requested.contains(Manifest.permission.RECEIVE_SMS))
+        assertFalse(requested.contains(Manifest.permission.READ_PHONE_STATE))
+        assertFalse(requested.contains(Manifest.permission.ANSWER_PHONE_CALLS))
     }
 
     @Test
@@ -48,7 +51,7 @@ class FirstLaunchPermissionsTest {
         shadowOf(app).grantPermissions(*PermissionConstants.PHONE_PERMISSIONS, Manifest.permission.CAMERA)
         var requested = emptySet<String>()
         FirstLaunchPermissions(app).requestIfNeeded { requested = it.toSet() }
-        assertEquals(setOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_CONTACTS), requested)
+        assertEquals(setOf(Manifest.permission.READ_CONTACTS), requested)
     }
 
     @Test

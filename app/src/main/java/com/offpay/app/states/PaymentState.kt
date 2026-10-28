@@ -107,6 +107,16 @@ sealed class PaymentState {
     ) : PaymentState()
 
     /**
+     * The dialer accepted the payment handoff, but the bank outcome is
+     * unknown. This records an attempt, never a successful payment.
+     */
+    data class Unverified(
+        val transactionId: String,
+        val phoneNumber: String,
+        val amount: String
+    ) : PaymentState()
+
+    /**
      * State when payment is cancelled by user
      * @param phoneNumber The recipient's phone number
      * @param amount The payment amount
@@ -135,9 +145,10 @@ sealed class PaymentState {
     ) : PaymentState()
 
     /**
-     * Checks if the payment is in a terminal state (Success, Failed, Cancelled)
+     * Checks whether OffPay has finished tracking this attempt.
      */
-    fun isTerminal(): Boolean = this is Success || this is Failed || this is Cancelled || this is NeedsReview
+    fun isTerminal(): Boolean =
+        this is Success || this is Failed || this is Cancelled || this is NeedsReview || this is Unverified
 
     /**
      * Checks if the payment is in progress
@@ -163,6 +174,7 @@ sealed class PaymentState {
         is Success -> this.transactionId
         is Failed -> this.transactionId
         is NeedsReview -> this.transactionId
+        is Unverified -> this.transactionId
         is Cancelled -> this.transactionId
         is Timeout -> this.transactionId
         else -> null
@@ -178,6 +190,7 @@ sealed class PaymentState {
         is Success -> this.phoneNumber
         is Failed -> this.phoneNumber
         is NeedsReview -> this.phoneNumber
+        is Unverified -> this.phoneNumber
         is Cancelled -> this.phoneNumber
         is Timeout -> this.phoneNumber
         else -> null
@@ -193,6 +206,7 @@ sealed class PaymentState {
         is Success -> this.amount
         is Failed -> this.amount
         is NeedsReview -> this.amount
+        is Unverified -> this.amount
         is Cancelled -> this.amount
         is Timeout -> this.amount
         else -> null
@@ -220,6 +234,7 @@ fun PaymentState.getDisplayMessage(): String = when (this) {
     is PaymentState.Success -> "Payment successful!"
     is PaymentState.Failed -> "Payment failed: $error"
     is PaymentState.NeedsReview -> "Payment needs review — check your bank statement"
+    is PaymentState.Unverified -> "Payment unverified. Check with your bank before paying again."
     is PaymentState.Cancelled -> "Payment cancelled: $reason"
     is PaymentState.Timeout -> "Payment timeout: ${timeoutType.name}"
 }
@@ -232,6 +247,7 @@ fun PaymentState.getProgressPercentage(): Float = when (this) {
     is PaymentState.Success -> 1f
     is PaymentState.Failed -> 0f
     is PaymentState.NeedsReview -> 1f
+    is PaymentState.Unverified -> 0f
     is PaymentState.Cancelled -> 0f
     is PaymentState.Timeout -> 0f
 }

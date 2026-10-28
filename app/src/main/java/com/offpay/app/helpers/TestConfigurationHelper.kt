@@ -3,7 +3,6 @@
 
 package com.offpay.app.helpers
 
-import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +13,7 @@ import com.offpay.app.data.TestResults
 import com.offpay.app.data.TestResultsManager
 import com.offpay.app.managers.CallManager
 import com.offpay.app.managers.CallType
-import com.offpay.app.managers.PermissionManager
+import com.offpay.app.managers.PaymentDialer
 
 /**
  * Helper class containing all business logic for TestConfigurationActivity
@@ -31,7 +30,6 @@ class TestConfigurationHelper(
     // Managers
     private lateinit var callManager: CallManager
     private lateinit var testResultsManager: TestResultsManager
-    private lateinit var permissionManager: PermissionManager
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var ussdTimeoutRunnable: Runnable? = null
@@ -83,7 +81,6 @@ class TestConfigurationHelper(
     fun initialize() {
         callManager = CallManager(context)
         testResultsManager = TestResultsManager(context)
-        permissionManager = PermissionManager(context as Activity)
     }
 
     /**
@@ -121,14 +118,6 @@ class TestConfigurationHelper(
         // Guard: prevent duplicate dials
         if (callType == CallType.USSD && (ussdTesting || ussdTestCompleted)) {
             Log.d(TAG, "USSD already in progress or completed, ignoring duplicate dial")
-            return
-        }
-
-        // Check phone permissions before initiating call - request if missing
-        if (!permissionManager.hasPhonePermissions()) {
-            Log.e(TAG, "Phone permissions not granted")
-            uiCallback.showToast(context.getString(R.string.error_call_permission_required_ussd))
-            uiCallback.requestPhonePermissions()
             return
         }
 
@@ -179,7 +168,7 @@ class TestConfigurationHelper(
             startUssdTimeout() // Start 25-second timeout
         }
 
-        callManager.initiateCall(
+        val launchResult = callManager.initiateCall(
             context = context,
             phoneNumber = number,
             callType = callType,
@@ -218,6 +207,48 @@ class TestConfigurationHelper(
                 currentTestingType = null
             }
         )
+        handleTestHandoff(callType, launchResult)
+    }
+
+    /** Manual confirmation keeps setup usable when call-state access is restricted. */
+    private fun handleTestHandoff(callType: CallType, result: PaymentDialer.Result) {
+        if (result == PaymentDialer.Result.UNAVAILABLE) {
+            dismissUssdDialog()
+            dismissUpi123Dialog()
+            voiceTesting = false
+            showVoiceDialog = false
+            uiCallback.updateVoiceTesting(false)
+            uiCallback.updateVoiceDialog(false)
+            return
+        }
+        if (result == PaymentDialer.Result.DIALER_OPENED || !callManager.isCallStateTrackingAvailable()) {
+            callManager.endCall()
+            when (callType) {
+                CallType.USSD -> {
+                    cancelUssdTimeout()
+                    showUssdDialog = false
+                    showUssdConfigurationOptions = true
+                    uiCallback.updateUssdDialog(false)
+                    uiCallback.updateUssdConfigurationOptions(true)
+                }
+                CallType.UPI123 -> {
+                    cancelUpi123ConfigDelay()
+                    upi123Testing = false
+                    showUpi123Dialog = false
+                    showUpi123ConfigurationOptions = true
+                    uiCallback.updateUpi123Testing(false)
+                    uiCallback.updateUpi123Dialog(false)
+                    uiCallback.updateUpi123ConfigurationOptions(true)
+                }
+                else -> {
+                    voiceTesting = false
+                    showVoiceDialog = false
+                    uiCallback.updateVoiceTesting(false)
+                    uiCallback.updateVoiceDialog(false)
+                }
+            }
+            uiCallback.showToast(context.getString(R.string.dialer_setup_confirmation))
+        }
     }
 
     // Simplified dialog logic - using simple 25-second timeout for USSD and immediate dialog for UPI123
@@ -364,7 +395,7 @@ class TestConfigurationHelper(
             uiCallback.updateUpi123Dialog(true)
 
             // Initiate UPI123 call - simple flow
-            callManager.initiateCall(
+            val launchResult = callManager.initiateCall(
                 context = context,
                 phoneNumber = AppConstants.DEFAULT_UPI_SERVICE_NUMBER,
                 callType = CallType.UPI123,
@@ -391,6 +422,7 @@ class TestConfigurationHelper(
                     }
                 }
             )
+            handleTestHandoff(CallType.UPI123, launchResult)
         } else {
             Log.d(TAG, "UPI123 test not started - already completed or testing")
         }

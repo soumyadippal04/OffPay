@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="optional_sms_permission_title">Bank SMS confirmations</string>
+    <string name="optional_sms_permission_detail">Use incoming bank SMS during an active payment to identify confirmations. OffPay does not read your inbox. If access is blocked, attempts are saved as Unverified. Check with your bank whenever a confirmation is missing.</string>
+    <string name="optional_sms_confirmation_summary">SMS confirmation is optional. Without access, attempts stay Unverified. With access, matching bank confirmations appear in history. Check your bank before paying again.</string>
+    <string name="optional_sms_notifications_declined">Result notifications are off. Bank confirmations can still appear in transaction history.</string>
+    <string name="optional_sms_edition">Optional SMS edition</string>
+    <string name="optional_sms_compatibility_edition">Compatibility edition</string>
+</resources>

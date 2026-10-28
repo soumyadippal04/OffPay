@@ -33,16 +33,6 @@
             message="Previously defined here"/>
     </issue>
 
-    <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        errorLine1="            overlayView = inflater.inflate(R.layout.call_overlay_offpay, null)"
-        errorLine2="                                                                          ~~~~">
-        <location
-            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
-            line="582"
-            column="75"/>
-    </issue>
 
 
 
@@ -213,38 +203,8 @@
             column="10"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 29"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
-            line="325"
-            column="13"/>
-    </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 29"
-        errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
-            line="342"
-            column="20"/>
-    </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 29"
-        errorLine1="                type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
-            line="610"
-            column="28"/>
-    </issue>
 
     <issue
         id="ObsoleteSdkInt"
@@ -330,16 +290,6 @@
             column="55"/>
     </issue>
 
-    <issue
-        id="StaticFieldLeak"
-        message="Do not place Android context classes in static fields (static reference to `CallOverlayService` which has field `overlayView` pointing to `View`); this is a memory leak"
-        errorLine1="        // Cleared in onDestroy(), so the reference is bounded by the service"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/offpay/app/services/CallOverlayService.kt"
-            line="53"
-            column="9"/>
-    </issue>
 
     <issue
         id="Overdraw"

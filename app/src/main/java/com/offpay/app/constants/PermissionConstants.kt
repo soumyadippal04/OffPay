@@ -5,41 +5,15 @@ package com.offpay.app.constants
 
 import android.Manifest
 
-/**
- * Centralized permission constants to avoid duplication and ensure consistency
- */
+/** Optional feature access. No runtime permission is required to open the system dialer. */
 object PermissionConstants {
+    val REQUIRED_PERMISSIONS = emptyArray<String>()
+    val CRITICAL_PERMISSIONS = emptyArray<String>()
+    val PHONE_PERMISSIONS = arrayOf(Manifest.permission.CALL_PHONE)
 
-    // Standard Android permissions required by the app
-    val REQUIRED_PERMISSIONS = arrayOf(
-        Manifest.permission.CALL_PHONE,
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.MODIFY_AUDIO_SETTINGS,
-        Manifest.permission.CAMERA,
-        Manifest.permission.READ_CONTACTS,
-        Manifest.permission.VIBRATE
-    )
-
-    // Critical permissions that are absolutely necessary for core functionality
-    val CRITICAL_PERMISSIONS = arrayOf(
-        Manifest.permission.CALL_PHONE,
-        Manifest.permission.READ_PHONE_STATE
-    )
-
-    // Phone-call permission group requested together before dialing. ANSWER_PHONE_CALLS
-    // powers the overlay's "End call" button and is in the same group, so it adds no
-    // extra consent dialog. Launched via ActivityResultContracts.RequestMultiplePermissions.
-    val PHONE_PERMISSIONS = arrayOf(
-        Manifest.permission.CALL_PHONE,
-        Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.ANSWER_PHONE_CALLS
-    )
-
-    // Runtime consent requested once when setup first opens. RECEIVE_SMS is sufficient;
-    // the app must not request READ_SMS or access the user's existing inbox.
+    // A single first-run invitation; denied permissions never block onboarding or payment handoff.
     val FIRST_LAUNCH_PERMISSIONS = PHONE_PERMISSIONS + arrayOf(
         Manifest.permission.CAMERA,
-        Manifest.permission.RECEIVE_SMS,
         Manifest.permission.READ_CONTACTS
     )
 }

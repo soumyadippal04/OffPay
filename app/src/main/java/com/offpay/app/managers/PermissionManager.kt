@@ -40,15 +40,14 @@ class PermissionManager(private val activity: Activity) {
      */
 
     /**
-     * Phone permissions: CALL_PHONE + READ_PHONE_STATE (and any other critical phone-related ones).
+     * Direct calling uses CALL_PHONE only. System-dialer handoff needs no permission.
      * Requesting them is done by the owning Activity via an
      * ActivityResultContracts.RequestMultiplePermissions launcher over
      * [PermissionConstants.PHONE_PERMISSIONS] — a launcher must be registered
      * at Activity-creation time, which this on-demand helper can't do.
      */
     fun hasPhonePermissions(): Boolean {
-        return isPermissionGranted(Manifest.permission.CALL_PHONE) &&
-            isPermissionGranted(Manifest.permission.READ_PHONE_STATE)
+        return isPermissionGranted(Manifest.permission.CALL_PHONE)
     }
 
     /**

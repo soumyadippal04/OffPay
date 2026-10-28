@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialer_finish_in_phone">Tap Call in your phone app and follow the bank prompts. Opening the dialer does not confirm a payment.</string>
+    <string name="dialer_unavailable">No available phone app could open this number. You can dial the bank service manually.</string>
+    <string name="dialer_setup_confirmation">Complete setup in the phone app, then tell OffPay whether it worked. Opening the dialer does not verify bank support.</string>
+</resources>

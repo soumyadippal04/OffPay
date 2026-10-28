@@ -1,11 +1,29 @@
 # OffPay architecture
 
-OffPay is a single-module Android app that puts a smartphone UI on top of
-two offline UPI rails — `*99#` USSD and UPI 123Pay IVR — and confirms
-payment outcomes by reading the bank's confirmation SMS locally. There is no
-backend, no `INTERNET` permission, and no telemetry. This document is the
-map: how the pieces fit, where the load-bearing invariants live, and which
-known simplifications are deliberate.
+OffPay opens bank-supported USSD/IVR flows and records local payment attempts.
+The default edition offers optional incoming-SMS confirmation; the compatibility
+edition removes SMS access entirely. Both avoid overlay, call-state, end-call and
+audio-control permissions.
+
+## Current handoff paths (1.0.5)
+
+`PaymentDialer` uses direct calling only if permitted, otherwise `ACTION_DIAL`.
+A denied permission or successful dialer launch never means payment failure or
+success. With `SmsConfirmation.isAvailable(context) == false`, a session starts
+with `automaticVerification = false`: no telephony collector or SMS watchdog is
+started. Accepted handoff transitions it to terminal **UNVERIFIED**; no handler
+may promote it to SUCCESS. A failed handoff transitions it to CANCELLED.
+
+With optional SMS permission granted, the existing payment-window/parser path
+below remains active. The bank's confirmation is the only success signal. The
+scanner keeps a static guide and does not require a floating overlay. The
+compat build's merged manifest removes the SMS receiver and notification access.
+
+Unknown QR amounts remain unknown in history rather than becoming a fabricated
+zero. Setup tests use explicit user confirmation when call-state access is absent.
+
+The sections below describe the retained automatic-SMS lifecycle and its tests;
+those paths are not the default for a permission-denied or compatibility session.
 
 ## The one invariant that matters
 

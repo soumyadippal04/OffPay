@@ -11,7 +11,8 @@ data class PaymentDetails(
     val id: String,
     val recipientName: String? = null,
     val phoneNumber: String,
-    val amount: Double,
+    /** Null when the bank/dialer flow has not supplied an amount. */
+    val amount: Double?,
     val timestamp: Long,
     val status: PaymentStatus
 )

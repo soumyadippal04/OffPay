@@ -3,30 +3,25 @@
 
 package com.offpay.app.receivers
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.offpay.app.BuildConfig
 import com.offpay.app.R
 import com.offpay.app.data.TransactionStatus
 import com.offpay.app.utils.CurrencyFormat
 
 /**
- * Posts a payment outcome as a high-priority notification.
- *
- * The direct [com.offpay.app.ui.activities.PaymentResultActivity] launch
- * from a background receiver/service relies on the background-activity-launch
- * exemption granted by the overlay permission; with that permission denied or
- * revoked, the launch is silently dropped and the user would never see their
- * outcome. The notification is posted ALONGSIDE the launch: tapping it opens
- * the same result screen, and when the direct launch did work it simply sits
- * in the shade as a receipt.
- *
- * Best-effort by design: on Android 13+ notifications additionally need the
- * POST_NOTIFICATIONS runtime grant; posting without it is a silent no-op,
- * never a crash.
+ * Offers a user-initiated result screen without covering the bank's dialer.
+ * Notifications are optional; confirmed history remains available when they are declined.
+ * The compatibility edition declares neither SMS nor notification access.
  */
 object PaymentResultNotifier {
 
@@ -34,6 +29,13 @@ object PaymentResultNotifier {
     private const val CHANNEL_ID = "payment_results"
 
     fun notifyResult(context: Context, resultIntent: Intent) {
+        if (!BuildConfig.SMS_CONFIRMATION_AVAILABLE) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         try {
             val manager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

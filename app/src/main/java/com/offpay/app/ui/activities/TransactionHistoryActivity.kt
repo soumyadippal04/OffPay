@@ -525,8 +525,12 @@ private fun TransactionHistoryItem(
         // SUCCESS and UNVERIFIED never look identical in the list.
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = stringResource(R.string.amount_rupees, CurrencyFormat.inr(transaction.amount)),
-                fontSize = 16.sp,
+                text = if (transaction.amount.toBigDecimalOrNull() == null) {
+                    stringResource(R.string.payment_amount_not_entered)
+                } else {
+                    stringResource(R.string.amount_rupees, CurrencyFormat.inr(transaction.amount))
+                },
+                fontSize = if (transaction.amount.toBigDecimalOrNull() == null) 12.sp else 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = OffPayTextWhite,
                 maxLines = 1

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.5 - 2026-10-28
+
+- Add prominent glass action cards with curved highlights, refractive rims and smooth spring press animations.
+- Make Phone, Camera and Contacts optional; provide dialer, photo-picker and typed-recipient fallbacks.
+- Keep SMS confirmation as an optional Settings opt-in. Payment handoff works without it and records an explicitly Unverified attempt.
+- Add a compatibility APK with SMS and notification permissions/receiver omitted. Neither edition requests overlays, call-state, end-call or audio-control access.
+- Expand the searchable bank directory to 714 NPCI-listed bank issuers, including Central Bank of India; distinguish directory membership from verified offline-service support.
+- Remove misleading automatic QR waiting/cancellation messages, preserve handoff state across recreation, and display unknown QR amounts accurately.
+- Await the specific SMS confirmation database write before notifying; amountless QR attempts remain Unverified. Remove the unused privileged call-overlay/audio/end-call implementation.
+- Document the reported Play Protect warning and official review process. Google clearance and physical-device compatibility are not established by these changes.
+
 ## 1.0.4 - 2026-10-27
 
 - Add an About page with Soumyadip Pal's circular portrait, app information and version, accessible from Settings.

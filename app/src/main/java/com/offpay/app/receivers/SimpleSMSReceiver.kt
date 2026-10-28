@@ -9,6 +9,7 @@ import android.content.Intent
 import android.provider.Telephony
 import android.util.Log
 import com.offpay.app.helpers.TransactionDetector
+import com.offpay.app.managers.SmsConfirmation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +24,11 @@ class SimpleSMSReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
 
+        if (!SmsConfirmation.isAvailable(context)) return
+        val detector = TransactionDetector.getInstance(context)
+        // Check the operation window before decoding any message content.
+        if (!detector.shouldProcessSMS()) return
+
         // Framework-provided PDU parsing (handles format + multipart correctly)
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: return
         if (messages.isEmpty()) return
@@ -32,12 +38,6 @@ class SimpleSMSReceiver : BroadcastReceiver() {
         if (body.isBlank()) return
 
         Log.d(TAG, "SMS received")
-
-        val detector = TransactionDetector.getInstance(context)
-        if (!detector.shouldProcessSMS()) {
-            Log.d(TAG, "No active payment operation, ignoring SMS")
-            return
-        }
 
         // Claim this exact message so a redelivered SMS_RECEIVED broadcast
         // can't process the same SMS a second time.

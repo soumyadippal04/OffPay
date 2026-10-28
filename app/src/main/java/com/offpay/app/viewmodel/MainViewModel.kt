@@ -20,9 +20,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 sealed interface MainUiEvent {
     /** The QR scanner activity returned; clear the "Opening…" button state. */
     data object QrScannerClosed : MainUiEvent
-
-    /** A payment needs overlay permission; show the explanation dialog. */
-    data object OverlayPermissionNeeded : MainUiEvent
 }
 
 class MainViewModel : ViewModel() {
@@ -34,9 +31,5 @@ class MainViewModel : ViewModel() {
 
     fun onQrScannerClosed() {
         _events.tryEmit(MainUiEvent.QrScannerClosed)
-    }
-
-    fun onOverlayPermissionNeeded() {
-        _events.tryEmit(MainUiEvent.OverlayPermissionNeeded)
     }
 }

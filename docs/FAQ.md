@@ -1,87 +1,79 @@
 # FAQ
 
-### Why does the app have no `INTERNET` permission?
+### Can I use OffPay if my phone refuses SMS or other permissions?
 
-Because it genuinely never talks to the network. OffPay is a client over
-payment rails that already exist on the device — `*99#` USSD and UPI 123Pay
-IVR — which run over the cellular voice/signalling channel, not IP. There is
-no backend, no analytics, and no telemetry, so there is nothing for an
-`INTERNET` permission to do. The absence of the permission is the strongest
-possible proof of that: an app without it *cannot* exfiltrate your data, no
-matter what its code claims.
+Yes, where the bank, SIM and system dialer support the payment flow. Phone,
+Camera and Contacts are optional: use the system dialer, import a QR image,
+or enter a recipient number. Blocked SMS does not block these actions.
+No edition requires floating-overlay access.
 
-### Why `RECEIVE_SMS` but not `READ_SMS`?
+The standard APK offers SMS confirmation as a Settings opt-in. The compatibility
+APK omits SMS permission and the receiver entirely. Both editions share the
+same package and signing certificate; choose one. About identifies your edition.
 
-`RECEIVE_SMS` lets the app see an SMS *as it arrives*; `READ_SMS` would let
-it read your existing inbox. OffPay only needs the former, and only while a
-payment is in progress, to catch the bank's confirmation message. It never
-reads your inbox, so it never requests `READ_SMS`. The confirmation SMS is
-parsed locally and only a privacy-safe excerpt (built from extracted fields,
-never the raw message body) is stored — a CI check blocks any code that
-would log the raw body.
+### Why can Android refuse SMS even after a permission request?
 
-### Does the app ever see my UPI PIN?
+`RECEIVE_SMS` is hard restricted and can depend on installer allowlisting.
+A runtime prompt cannot override that. Some sideloading protections also act
+on declared SMS permissions. The compatibility edition avoids requesting that
+capability; it does not bypass device protections or establish Google approval.
 
-No. Your PIN is entered only inside your bank's own `*99#` / IVR flow.
-OffPay triggers the dialer and shows a UI anchor; it uses **no accessibility
-service**, so it cannot read your screen, capture input, or see other apps.
-There is no path by which it could observe your PIN.
+### What should I do if Play Protect says “Harmful app blocked”?
 
-### Why isn't it on the Google Play Store?
+Do not disable protection to force installation. The exact warning/category
+and APK hash matter, and the cause of the reported warning remains unconfirmed.
+See [review notes](PLAY_PROTECT_REVIEW.md) for the official evidence and Google's
+appeal process. A reduced permission list and passing tests are not proof that
+Google has cleared an APK.
 
-Google Play's restricted-permission policy effectively bars apps that use SMS
-permissions for this kind of use case. Rather than compromise the design,
-OffPay is published as source that you build yourself. Being fully FOSS, it
-would also suit an F-Droid-style store, but it is not in one today and no
-prebuilt APK is distributed from here.
+### Does optional SMS access read my inbox?
 
-### How can a payment succeed if the app can't reach the internet?
+No. `READ_SMS` is never requested. When enabled and permitted, the app checks
+new incoming messages only during an active payment window. It checks that
+window before decoding the message, parses locally and stores a summary rather
+than the raw body. Result notifications are optional; history remains available.
 
-It isn't the app that reaches your bank — it's your phone's cellular
-connection, over the same rails a feature phone uses. OffPay dials `*99#` or
-the 123Pay IVR for you and gives you a smartphone UI to start from; the
-actual authorization happens between you, your telecom operator, your bank,
-and NPCI, exactly as if you had dialed the code yourself.
+### What does Unverified mean?
 
-### Why did a payment I started not show up at all?
+OffPay handed the attempt to the dialer but cannot verify whether money moved.
+This is the normal status without SMS capability, including the compatibility
+edition and QR codes without an encoded amount. It is not a receipt or an
+instruction to pay again. Check your bank's SMS, app or statement first.
 
-Because **no confirmation SMS arrived from your bank**. OffPay records a
-payment only when the bank confirms it — it deliberately never guesses, and
-won't call a payment successful just because the call connected or lasted a
-while. If the confirmation never comes, the attempt is discarded rather than
-left behind as an outcome you can't act on, so check your bank statement or
-SMS inbox to see whether the money actually moved. Confirmations that arrive
-a little late are still picked up. This is the honest-by-design behavior; see
-[ARCHITECTURE.md](ARCHITECTURE.md).
+When SMS confirmation is enabled for an eligible payment, the existing matching
+window is used. If no matching confirmation arrives before its deadline, the
+unconfirmed automatic-mode row is discarded; absence from history does not prove
+a failed payment. A matching amount and timing alone are not cryptographic proof
+of a particular payee: compare the bank's details before relying on a record.
 
-Transactions marked `UNVERIFIED` in your history are from an older version,
-which recorded unconfirmed attempts instead of discarding them; they mean
-the same thing — OffPay doesn't know whether that payment went through.
+### Are all listed banks guaranteed to support offline UPI?
 
-### What are the carrier / USSD limitations?
+No. The searchable directory contains NPCI-listed bank issuers, including Central
+Bank of India, and is intended to avoid blocking bank selection. Availability
+varies by bank, account, provider and SIM. Confirm the actual service through
+setup and your bank. [Directory sources and limitations](OFFLINE_BANKS.md).
 
-`*99#` is a synchronous telco menu walk over GSM signalling. Each round trip
-takes roughly a minute, sessions can time out, and behavior varies by
-operator and SIM. OffPay accounts for the timeouts but can't make the
-underlying rail faster.
+### Does the app see my UPI PIN?
 
-`*99#` also does not work on Jio at all — USSD rides the legacy GSM signalling
-channel, and Jio is an all-IP (VoLTE) network. That is exactly the gap UPI
-123Pay was created to close, which is why OffPay ships the 123Pay IVR rail
-alongside USSD: Jio users pay through IVR with the full feature set, no
-compromise.
+No. Enter it only in the bank's own phone/USSD flow. OffPay does not request a PIN,
+use an accessibility service, or read another app's screen.
 
-### Why does it need my carrier / SIM in setup?
+### Which SIM will place the call?
 
-The 123Pay IVR call goes out on the device's **default voice SIM**, which may
-not be the UPI-registered SIM you intend to pay from. On dual-SIM devices,
-OffPay warns you before dialing if the two don't match, so a payment doesn't
-fail mysteriously.
+The system dialer/default voice SIM controls the call. Select the SIM linked to
+your bank account. Choosing a carrier in OffPay setup does not change Android's
+default calling SIM, and OffPay does not read phone state to infer it.
 
-### Is it safe to build and run myself?
+### Does offline mean no mobile network is needed?
 
-Yes — and you're encouraged to. `./gradlew assembleDebug` produces a working
-APK with no device, and `./gradlew installDebug` runs it on one. See
-[TESTING.md](TESTING.md) for how payment outcomes are verified (including a
-debug tool that replays a bank SMS through the live pipeline without needing
-a real bank), and [CONTRIBUTING.md](../CONTRIBUTING.md) to get started.
+No. The app has no backend or internet permission, but the bank's USSD/IVR flow
+still needs a compatible cellular connection. Jio's USSD limitations require a
+supported alternative such as the bank's IVR service. Bank menus and timing can
+change and require testing with the actual bank/SIM/device.
+
+### Where are APKs and source available?
+
+Source and signed development APK links are in this repository's GitHub Releases.
+OffPay is not listed on Google Play. Store policy eligibility and Play Protect
+classification are separate questions; neither is guaranteed by a source build.
+See [README](../README.md), [testing](TESTING.md) and [security](../SECURITY.md).

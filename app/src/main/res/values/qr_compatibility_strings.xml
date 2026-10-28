@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="qr_camera_off_gallery_hint">Camera is off.\nChoose a QR image using the gallery button below to continue.</string>
+    <string name="qr_close_scanner">Close scanner</string>
+    <string name="qr_handoff_title">Continue in your dialer</string>
+    <string name="qr_handoff_error_title">Could not start payment</string>
+    <string name="qr_handoff_step_start">1. Start the call if your dialer asks, then follow your bank\'s menu.</string>
+    <string name="qr_handoff_step_payee">2. Paste the copied UPI ID when the menu asks for the recipient.</string>
+    <string name="qr_handoff_step_review">3. Check the recipient and amount before entering your UPI PIN in the bank\'s menu.</string>
+    <string name="qr_external_confirmation">Finish in your dialer, then check your bank\'s SMS or app for the result. OffPay cannot confirm whether money was sent. This attempt is saved as Unverified.\n\nCheck with your bank before trying again. Done only closes this guide; it does not cancel a payment.</string>
+    <string name="qr_optional_sms_confirmation">Finish in your dialer. With SMS permission enabled, OffPay can record a matching bank confirmation in your payment history. Opening the dialer does not confirm a payment.\n\nCheck your bank\'s SMS or app for the result before trying again. Done only closes this guide; it does not cancel a payment or stop SMS confirmation.</string>
+    <string name="qr_dialer_unavailable">A compatible phone dialer could not be opened. No payment call was started by OffPay. Close this screen and check your phone\'s dialer settings.</string>
+    <string name="qr_clipboard_unavailable">The recipient\'s UPI ID could not be copied. No payment call was started. Close this screen and try scanning again.</string>
+</resources>

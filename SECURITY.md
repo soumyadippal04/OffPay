@@ -1,6 +1,19 @@
 # Security Policy
 
-OffPay handles UPI 123Pay payment flows, USSD dialing, and SMS parsing. Please treat security issues with appropriate care: **do not file public GitHub issues for vulnerabilities.**
+OffPay handles UPI 123Pay/USSD handoffs and optional SMS confirmation. Please treat security issues with appropriate care: **do not file public GitHub issues for vulnerabilities.**
+
+## Current permission and Play Protect status
+
+OffPay 1.0.5 removes overlay, call-state, end-call and audio-control permissions.
+The main edition retains **optional** incoming-SMS confirmation; denying it must
+not block payments. The compatibility edition removes SMS/notification permissions
+and the SMS receiver entirely. No app edition can override installer permission
+restrictions or Play Protect decisions. See [review notes](docs/PLAY_PROTECT_REVIEW.md)
+for the owner's reported harmful-app warning, evidence limits and Google's appeal
+channel. No Google clearance or universal handset compatibility is claimed.
+
+Without SMS capability, new payment attempts remain **UNVERIFIED**. Existing
+bank-confirmed history is retained. Users must check their bank before retrying.
 
 ## Supported versions
 
@@ -23,7 +36,7 @@ The current OffPay development APK is signed with a locally generated developmen
 51536574a0a4aa1468800bd50bc91035b3ac4e3c9cf04ff9843ad8f11ae7889f
 ```
 
-Verify an APK with `apksigner verify --print-certs OffPay-1.0.1-release.apk`. A file's SHA-256 checksum checks file integrity; it is different from the signing certificate digest above. Never publish private keys, keystores or their passwords.
+Verify an APK with `apksigner verify --print-certs OffPay-1.0.5-release.apk`. A file's SHA-256 checksum checks file integrity; it is different from the signing certificate digest above. Never publish private keys, keystores or their passwords.
 
 OffPay uses application ID `com.offpay.app`, so it installs separately from Flowpay. Different signing keys cannot update the same installed application without uninstalling it first, which removes its private data. Physical-device launch and payment validation remain outstanding for this rebrand.
 
@@ -56,7 +69,7 @@ In scope:
 - The Android app source under `app/src/main/`.
 - The Gradle build configuration.
 - The Room database schema and migrations.
-- The USSD dialer flow, SMS parser, and call-overlay service.
+- The dialer handoff, optional SMS parser, permission handling and local payment history.
 
 Out of scope:
 
@@ -82,8 +95,8 @@ What the app stores, where, and for how long:
 Design rules the code enforces:
 
 - **No INTERNET permission.** The app cannot transmit anything, by construction.
-- **`READ_SMS` is not requested.** The app only receives incoming SMS (`RECEIVE_SMS`) while a payment operation is active; it never reads the inbox.
-- **SMS are only inspected inside an explicit payment window** — a ~10-minute operation (a 10-minute verification deadline plus a 30-second grace margin) started when the user initiates a transfer; outside it, incoming messages are never read. Bank matching itself is deliberately permissive keyword matching (field-proven against real bank templates), so the operation window — not sender authentication — is the primary control.
+- **`READ_SMS` is never requested.** In the SMS edition, explicit permission enables incoming-SMS processing only during an active payment window. The compatibility edition declares neither SMS permission nor receiver.
+- **When optional SMS confirmation is available, SMS are only inspected inside an explicit payment window** — a ~10-minute operation (a 10-minute verification deadline plus a 30-second grace margin) started when the user initiates a transfer; outside it, incoming messages are never read. Bank matching itself is deliberately permissive keyword matching (field-proven against real bank templates), so the operation window — not sender authentication — is the primary control.
 - **Stored summaries are built constructively** from parsed fields (amount/status/bank/ref), so account numbers and balances in message prose can never reach the database.
 - **There is one SMS ingestion path.** A notification-listener fallback used to exist alongside the broadcast receiver; it was removed as dead code — the setting that would have enabled it was never wired to anything, so it could never run. Removing it also drops the app's only `BIND_NOTIFICATION_LISTENER_SERVICE` component, so nothing in the app can read notification content from other apps.
 - CI rejects log statements that interpolate SMS bodies in payment-critical packages.
@@ -91,13 +104,8 @@ Design rules the code enforces:
 ## Known deferred issues
 
 The CI baselines (`app/lint-baseline.xml`, `app/detekt-baseline.xml`) freeze
-pre-existing static-analysis findings so new code must come in clean. Two are
-worth naming because they look security-relevant and are deliberate:
+pre-existing static-analysis findings so new code must come in clean. The remaining debug-only receiver finding is worth naming because it is deliberate:
 
-- **`StaticFieldLeak` in `CallOverlayService`** — the service holds a static
-  reference to itself so the overlay can be addressed from a broadcast context.
-  It is cleared in `onDestroy()`, so the reference is bounded by the service
-  lifecycle rather than leaked indefinitely.
 - **`ExportedReceiver` on `DebugSmsInjectionReceiver`** — an unguarded exported
   receiver, in the **debug** source set only. It exists so a developer can
   replay a bank SMS through the live pipeline via `adb` without a real SIM, and

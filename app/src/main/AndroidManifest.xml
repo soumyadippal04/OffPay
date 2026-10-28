@@ -2,30 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Required permissions for UPI123 payment system -->
+    <!-- Optional feature permissions. A system dialer, gallery and typed number
+         remain available when these permissions are declined or restricted. -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <!-- Lets the in-call overlay's "End call" button actually hang up via TelecomManager.endCall() -->
-    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
-    <!-- CAMERA: phone camera for QR scanning -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!-- SMS detection via BroadcastReceiver. READ_SMS is deliberately NOT
-         requested: the app never reads the SMS inbox, it only receives
-         incoming messages while a payment operation is active. -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- Payment outcomes are also posted as notifications: the direct
-         result-screen launch from a background receiver rides the
-         overlay-permission exemption and can be silently blocked, and a
-         money outcome must never be unreachable. -->
+    <!-- Optional, explicit Settings opt-in. The compat build removes both declarations. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Camera features for QR code scanning -->
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
     <application
         android:name=".OffPayApplication"
@@ -100,13 +89,6 @@
             android:label="@string/about_title"
             android:parentActivityName=".ui.activities.SettingsActivity" />
 
-        <!-- Call Overlay Service for UPI call protection -->
-        <service
-            android:name=".services.CallOverlayService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <!-- SMS BroadcastReceiver — the single SMS ingestion path -->
         <receiver
             android:name=".receivers.SimpleSMSReceiver"
             android:exported="true"
@@ -115,7 +97,6 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

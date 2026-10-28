@@ -5,6 +5,7 @@ package com.offpay.app.helpers
 
 import android.content.Context
 import com.offpay.app.R
+import com.offpay.app.data.OfflineBankCatalog
 
 /**
  * Helper class containing all business logic for SetupActivity
@@ -92,18 +93,7 @@ class SetupHelper(
      * Get available banks
      */
     fun getBanks(): List<Pair<String, String>> {
-        return listOf(
-            "sbi" to "State Bank of India",
-            "hdfc" to "HDFC Bank",
-            "icici" to "ICICI Bank",
-            "axis" to "Axis Bank",
-            "kotak" to "Kotak Mahindra Bank",
-            "pnb" to "Punjab National Bank",
-            "bob" to "Bank of Baroda",
-            "yes" to "Yes Bank",
-            "idbi" to "IDBI Bank",
-            "canara" to "Canara Bank"
-        )
+        return OfflineBankCatalog.banks.map { it.id to it.name }
     }
 
     /**

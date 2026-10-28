@@ -43,8 +43,9 @@ android {
         // versionCode is monotonic and independent of versionName: builds with
         // code 4 exist on test hardware, and Android refuses downgrades, so
         // this only ever goes up even though the public name restarts at 1.0.0.
-        versionCode = 9
-        versionName = "1.0.4"
+        versionCode = 10
+        versionName = "1.0.5"
+        buildConfigField("boolean", "SMS_CONFIRMATION_AVAILABLE", "true")
 
         vectorDrawables {
             useSupportLibrary = true
@@ -93,6 +94,12 @@ android {
             isDebuggable = true
             buildConfigField("boolean", "DEBUG_LOGS", "true")
         }
+        // A real reduced-permission edition, sharing the package/signature for safe updates.
+        create("compat") {
+            initWith(getByName("release"))
+            matchingFallbacks += listOf("release")
+            buildConfigField("boolean", "SMS_CONFIRMATION_AVAILABLE", "false")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -104,6 +111,10 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    sourceSets {
+        getByName("debug").java.srcDir("src/sms/java")
+        getByName("release").java.srcDir("src/sms/java")
     }
     packaging {
         resources {
@@ -130,6 +141,8 @@ android {
     testOptions {
         // android.util.Log etc. return defaults instead of throwing in JVM unit tests
         unitTests.isReturnDefaultValues = true
+        // Exercise real merged permissions and strings in the permission/handoff regression tests.
+        unitTests.isIncludeAndroidResources = true
     }
     // Reproducibility: don't embed the Google-Play dependency metadata blob
     // (a signed, opaque protobuf) into APKs — this app is not Play-distributed.
@@ -143,7 +156,7 @@ android {
 // caller explicitly opts in with -PallowUnsigned. This fires only when a
 // release-packaging task actually runs — a configuration-time throw would break
 // debug/test builds (e.g. CI) that legitimately run without a keystore.
-tasks.matching { it.name == "packageRelease" }.configureEach {
+tasks.matching { it.name == "packageRelease" || it.name == "packageCompat" }.configureEach {
     doFirst {
         if (!keystorePropertiesFile.exists() && !project.hasProperty("allowUnsigned")) {
             throw GradleException(

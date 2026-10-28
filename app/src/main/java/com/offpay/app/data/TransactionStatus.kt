@@ -10,7 +10,7 @@ package com.offpay.app.data
  * SUCCESS      — bank SMS confirmed the debit
  * FAILED       — bank SMS reported a failure/decline
  * CANCELLED    — call ended before the IVR flow could complete, or dial failed
- * UNVERIFIED   — call completed but no bank SMS arrived within the deadline;
+ * UNVERIFIED   — payment handoff attempted; OffPay cannot verify the outcome;
  *                the money may or may not have moved — the user must check
  *                with their bank
  * NEEDS_REVIEW — a bank SMS confirmed *something* during this payment, but

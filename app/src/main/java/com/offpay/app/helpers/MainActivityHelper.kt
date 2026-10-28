@@ -3,10 +3,8 @@
 
 package com.offpay.app.helpers
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.provider.Settings
 import android.util.Log
 import com.offpay.app.OffPayApplication
 import com.offpay.app.R
@@ -14,11 +12,10 @@ import com.offpay.app.SetupActivity
 import com.offpay.app.TestConfigurationActivity
 import com.offpay.app.constants.AppConstants
 import com.offpay.app.managers.CallManager
-import com.offpay.app.managers.PermissionManager
+import com.offpay.app.managers.SmsConfirmation
 import com.offpay.app.payment.PaymentInputValidator
 import com.offpay.app.payment.Upi123CallStringBuilder
 import com.offpay.app.payment.messageFor
-import com.offpay.app.services.CallOverlayService
 import com.offpay.app.states.PaymentState
 
 /**
@@ -39,7 +36,6 @@ class MainActivityHelper(
 
     // Managers
     private var callManager: CallManager? = null
-    private var permissionManager: PermissionManager? = null
 
     /**
      * Interface for UI callbacks
@@ -50,11 +46,7 @@ class MainActivityHelper(
         fun navigateToSetup()
         fun navigateToTestConfiguration()
         fun finishActivity()
-        fun showOverlayPermissionExplanation()
         fun launchQRScanner(intent: Intent)
-
-        /** Launch the phone-permission request (Activity owns the launcher). */
-        fun requestPhonePermissions()
     }
 
     /**
@@ -77,28 +69,8 @@ class MainActivityHelper(
             return
         }
 
-        // Check phone permissions only (camera is handled by QRScannerActivity)
-        if (permissionManager?.hasPhonePermissions() != true) {
-            Log.d(TAG, "Phone permissions not granted, requesting...")
-            uiCallback.showToast(context.getString(R.string.status_requesting_permissions))
-            uiCallback.requestPhonePermissions()
-            return
-        }
-
-        Log.d(TAG, "Phone permissions granted, opening QR scanner")
         uiCallback.showToast(context.getString(R.string.status_opening_scanner))
         openQRScanner()
-    }
-
-    /**
-     * Hide overlay
-     */
-    fun hideOverlay() {
-        try {
-            CallOverlayService.hideOverlay(context)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error hiding overlay: ${e.message}")
-        }
     }
 
     /**
@@ -107,7 +79,6 @@ class MainActivityHelper(
     fun initialize() {
         try {
             callManager = CallManager(context)
-            permissionManager = PermissionManager(context as Activity)
         } catch (e: Exception) {
             Log.e(TAG, "Error during initialization: ${e.message}")
         }
@@ -134,7 +105,7 @@ class MainActivityHelper(
      *
      * Records a PENDING transaction via PaymentSessionManager BEFORE dialing,
      * so the database knows about the attempt even if the process dies
-     * mid-call. The session reaches SUCCESS only via a confirming bank SMS.
+     * mid-call. Handoff is stored as UNVERIFIED; the bank provides confirmation.
      */
     /**
      * Validates what the user typed, reporting the first problem found.
@@ -176,21 +147,6 @@ class MainActivityHelper(
 
         if (!isTransferInputValid(phoneNumber, amount)) return
 
-        // Check phone permissions only (camera/contacts handled separately)
-        if (permissionManager?.hasPhonePermissions() != true) {
-            uiCallback.showToast(context.getString(R.string.error_phone_permission_required))
-            uiCallback.requestPhonePermissions()
-            return
-        }
-
-        if (permissionManager?.checkOverlayPermission() != true || !Settings.canDrawOverlays(context)) {
-            Log.d(TAG, "Overlay permission not granted, showing explanation dialog")
-            uiCallback.showOverlayPermissionExplanation()
-            return
-        }
-
-        warnIfVoiceSimMismatch()
-
         val sessionManager = OffPayApplication.from(context)?.paymentSessionManager
         if (sessionManager == null) {
             Log.e(TAG, "PaymentSessionManager unavailable")
@@ -198,73 +154,25 @@ class MainActivityHelper(
             return
         }
 
-        // PENDING row is written before anything is dialled. begin() always
-        // succeeds — a new payment supersedes any session still in flight
-        // rather than being refused.
-        val transactionId = sessionManager.begin(phoneNumber, amount)
-
-        // Gate SMS detection to this operation window. The session txnId is
-        // persisted so a confirmation arriving after a process death can be
-        // reattached to this payment's row instead of inserting a duplicate.
-        TransactionDetector.getInstance(context).startOperation(
-            operationType = "UPI_123",
-            expectedAmount = amount,
-            phoneNumber = phoneNumber,
-            sessionTxnId = transactionId
-        )
-
-        val success = callManager?.initiateUPI123Call(phoneNumber, amount) ?: false
-        if (success) {
-            // Overlay service shows once the coordinator reports the call OFFHOOK
-            CallOverlayService.showOverlay(context, phoneNumber, amount)
-        } else {
-            Log.e(TAG, "Failed to initiate UPI123 call")
-            sessionManager.onDialFailed("Could not start the payment call")
-            TransactionDetector.getInstance(context).stopOperation()
+        // Record only an attempt; opening the dialer does not prove money moved.
+        val automaticVerification = SmsConfirmation.isAvailable(context)
+        TransactionDetector.getInstance(context).stopOperation()
+        val transactionId = sessionManager.begin(phoneNumber, amount, automaticVerification = automaticVerification)
+        if (automaticVerification) {
+            TransactionDetector.getInstance(context).startOperation(
+                operationType = "UPI_123",
+                expectedAmount = amount,
+                phoneNumber = phoneNumber,
+                sessionTxnId = transactionId
+            )
         }
-    }
-
-    /**
-     * Dual-SIM pitfall: the IVR call silently goes out on the device's
-     * DEFAULT VOICE SIM, which may not be the UPI-registered SIM the user
-     * selected in setup — payments then fail mysteriously. Detect the
-     * mismatch and warn before dialling. Never blocks the payment.
-     */
-    private fun warnIfVoiceSimMismatch() {
-        try {
-            val selectedCarrier = context
-                .getSharedPreferences(AppConstants.PREFS_NAME, Context.MODE_PRIVATE)
-                .getString("selected_primary_sim", "") ?: ""
-            if (selectedCarrier.isEmpty()) return
-
-            val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE)
-                as? android.telephony.SubscriptionManager ?: return
-            val voiceSubId = android.telephony.SubscriptionManager.getDefaultVoiceSubscriptionId()
-            if (voiceSubId == android.telephony.SubscriptionManager.INVALID_SUBSCRIPTION_ID) return
-
-            // Single-SIM devices can't mismatch
-            if ((subscriptionManager.activeSubscriptionInfoCount) < 2) return
-
-            val voiceCarrier = subscriptionManager.getActiveSubscriptionInfo(voiceSubId)
-                ?.carrierName?.toString()?.lowercase() ?: return
-
-            val matches = when (selectedCarrier) {
-                "vodafone" -> voiceCarrier.contains("vodafone") || voiceCarrier.contains("vi")
-                else -> voiceCarrier.contains(selectedCarrier)
-            }
-            if (!matches) {
-                uiCallback.showToast(
-                    context.getString(
-                        R.string.warn_voice_sim_mismatch,
-                        voiceCarrier,
-                        selectedCarrier.replaceFirstChar { it.uppercase() }
-                    )
-                )
-            }
-        } catch (e: SecurityException) {
-            Log.w(TAG, "Cannot check SIM mismatch: ${e.message}")
-        } catch (e: Exception) {
-            Log.w(TAG, "SIM mismatch check failed: ${e.message}")
+        val handedOff = callManager?.initiateUPI123Call(phoneNumber, amount) ?: false
+        if (handedOff) {
+            if (!automaticVerification) sessionManager.onExternalConfirmationRequired()
+            uiCallback.showToast(context.getString(R.string.compatibility_check_bank))
+        } else {
+            sessionManager.onDialFailed("Could not open the payment dialer")
+            if (automaticVerification) TransactionDetector.getInstance(context).stopOperation()
         }
     }
 

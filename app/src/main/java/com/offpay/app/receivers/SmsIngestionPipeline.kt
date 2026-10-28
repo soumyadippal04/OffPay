@@ -6,7 +6,6 @@ package com.offpay.app.receivers
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.offpay.app.OffPayApplication
 import com.offpay.app.helpers.TransactionDetector
 import com.offpay.app.payment.sms.SimpleTransaction
@@ -47,7 +46,9 @@ object SmsIngestionPipeline {
         // after the deadline discarded that row finds nothing to adopt and
         // is saved standalone — the payment still surfaces.
         val sessionManager = OffPayApplication.from(context)?.paymentSessionManager
-        val sessionTxnId = sessionManager?.onSmsConfirmed(transaction)
+        // Await the session-owned write inside the receiver's goAsync lifetime.
+        // A database failure aborts ingestion before any result notification.
+        val sessionTxnId = sessionManager?.onSmsConfirmedAndPersisted(transaction)
         val recordTxnId = resolveOwnerTxnId(
             sessionTxnId = sessionTxnId,
             windowTxnId = windowTxnId,
@@ -72,12 +73,6 @@ object SmsIngestionPipeline {
         }
 
         withContext(Dispatchers.Main) {
-            // Dismiss the USSD overlay (QR flow) and notify listening screens.
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(Intent("DISMISS_OVERLAY"))
-            LocalBroadcastManager.getInstance(context)
-                .sendBroadcast(Intent("com.offpay.app.SMS_RECEIVED"))
-
             val successIntent = Intent(context, PaymentResultActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra("transaction_id", recordTxnId ?: transaction.transactionId)
@@ -91,11 +86,9 @@ object SmsIngestionPipeline {
                 putExtra("recipient_name", transaction.recipientName)
                 putExtra("phone_number", transaction.phoneNumber)
             }
-            // Notification first (also serves as a receipt), then the direct
-            // launch — which can be silently blocked without the overlay
-            // permission; the notification is the guaranteed-reachable path.
+            // Optional notification; confirmed history stays accessible if notifications are denied.
             PaymentResultNotifier.notifyResult(context, successIntent)
-            context.startActivity(successIntent)
+            // The user opens results by tapping the notification or local history.
         }
     }
 

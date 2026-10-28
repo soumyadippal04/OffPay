@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.offpay.app.helpers.SetupHelper
 import com.offpay.app.managers.FirstLaunchPermissions
 import com.offpay.app.ui.components.CreatorCredit
-import com.offpay.app.ui.components.glassButtonSurface
+import com.offpay.app.ui.components.glassButton
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
 import com.offpay.app.ui.theme.OffPayDarkGray
@@ -357,13 +357,16 @@ private fun SetupFieldLabel(text: String) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BankSelectionSection(
     banks: List<Pair<String, String>>,
     selectedBank: String,
     onBankSelected: (String) -> Unit
 ) {
+    var showPicker by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    val selectedName = com.offpay.app.data.OfflineBankCatalog.nameFor(selectedBank)
+        ?: banks.find { it.first == selectedBank }?.second
+        ?: stringResource(R.string.setup_choose_your_bank)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -375,65 +378,34 @@ fun BankSelectionSection(
             title = stringResource(R.string.bank_selection),
             subtitle = stringResource(R.string.choose_primary_bank)
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         SetupFieldLabel(stringResource(R.string.setup_select_bank))
-
-        var expanded by remember { mutableStateOf(false) }
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+        Surface(
+            onClick = { showPicker = true },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
-            OutlinedTextField(
-                value = banks.find { it.first == selectedBank }?.second
-                    ?: stringResource(R.string.setup_choose_your_bank),
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OffPayDisabledGray,
-                    unfocusedBorderColor = OffPayLightGray,
-                    focusedContainerColor = OffPayMediumGray,
-                    unfocusedContainerColor = OffPayDarkGray,
-                    focusedTextColor = OffPayTextWhite,
-                    unfocusedTextColor = OffPayTextWhite,
-                    focusedTrailingIconColor = OffPayTextWhite,
-                    unfocusedTrailingIconColor = OffPayTextWhite
-                ),
-                shape = RoundedCornerShape(12.dp),
-                textStyle = TextStyle(fontSize = 15.sp),
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.background(OffPayMediumGray)
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                banks.forEach { (value, label) ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                label,
-                                color = OffPayTextWhite,
-                                fontSize = 15.sp
-                            )
-                        },
-                        onClick = {
-                            onBankSelected(value)
-                            expanded = false
-                        },
-                        modifier = Modifier.background(OffPayMediumGray)
-                    )
-                }
+                Text(selectedName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.bank_picker_change))
             }
         }
+    }
+    if (showPicker) {
+        com.offpay.app.ui.components.BankSelectionDialog(
+            selectedBankId = selectedBank,
+            onBankSelected = { bank ->
+                onBankSelected(bank.id)
+                showPicker = false
+            },
+            onDismiss = { showPicker = false }
+        )
     }
 }
 
@@ -747,8 +719,7 @@ fun CompleteSetupButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .glassButtonSurface(enabled = enabled)
-            .clickable(enabled = enabled) { onCompleteSetup() },
+            .glassButton(enabled = enabled, onClick = onCompleteSetup),
         contentAlignment = Alignment.Center
     ) {
         Row(

@@ -1,125 +1,56 @@
 # OffPay — Payments Without Internet
 
-*An Android app that brings UPI payments to users with no internet, using `*99#` USSD and UPI 123Pay (IVR) rails.*
+An Android companion for bank-supported `*99#` USSD and UPI 123Pay phone flows, maintained and personalised by **Soumyadip Pal**.
 
 ![Build](https://github.com/soumyadippal04/OffPay/actions/workflows/build.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)
-![Status](https://img.shields.io/badge/status-active-brightgreen)
 
-**OffPay**, maintained and personalised by **Soumyadip Pal**, pairs offline payment rails with a bright blue interface, light and dark modes, and a rupee-and-payment-arrow identity. The in-app About page introduces the creator. Android package: `com.offpay.app`.
-
-OffPay tackles a problem millions of people in India hit every day: UPI payments break the moment the internet drops. It puts a clean, smartphone-native UI on top of the offline payment rails — `*99#` USSD and UPI 123Pay — that already ship on every Indian phone but stay buried behind menus almost nobody uses.
-
-
-
----
+OffPay combines a blue glass-style interface, smooth press animations, saved light/dark mode, QR image import and an About page. Android application ID: `com.offpay.app`.
 
 ## What it does
 
-OffPay wraps the two offline UPI rails that already exist on every Indian smartphone but are buried behind UX so poor that almost nobody uses them:
+- **Scan or import a QR:** validate a UPI QR, copy its payee address for the bank menu, and open the configured `*99#` flow. Gallery import works without camera access.
+- **Pay a contact:** select a saved contact or type a number and amount, then continue through the configured UPI 123Pay dialer flow. Direct calling is optional; without permission, the system dialer lets the user initiate the call.
+- **Choose your bank:** search a locally packaged directory of 714 NPCI-listed bank issuers, including Central Bank of India. Common abbreviations such as CBI, SBI and BoB are searchable. Directory membership does **not** guarantee offline support; check availability with your bank and SIM. [Directory sources and limits](docs/OFFLINE_BANKS.md).
+- **Review attempts:** payment handoffs without SMS access are labelled **Unverified**. Opening a dialer, completing setup or returning from a call never proves that money moved. Check your bank's confirmation before paying again.
 
-- **`*99#` USSD flow** — dial the shortcode, navigate the menu, send money. OffPay places the call and gives the user a payment UI to start from.
-- **UPI 123Pay IVR flow** — the call-based payment flow NPCI launched in 2022 for feature phones. OffPay builds and validates the DTMF payload, places the call, tracks call state throughout, and keeps an on-screen guide in front of the user for the duration.
+OffPay is not a bank, wallet or payment processor. Your bank and payment provider authorise and process payments. OffPay never requests or captures a UPI PIN; enter it only in the bank's own phone flow.
 
-Each entry point uses the rail that fits it:
+## Permissions and APK editions
 
-- **Scan QR** → dials `*99*1*3#`, the USSD scan-to-pay branch.
-- **Pay Contact** (manual entry) → places a **UPI 123Pay IVR call** to NPCI's published service number, with the payee and amount carried as DTMF.
+Phone, Camera and Contacts access are optional. Declining them leaves system-dialer handoff, QR image import and typed recipient entry available. Neither edition requests floating-overlay, call-state, end-call or audio-control access.
 
-### Why both rails
+| Edition | SMS confirmation | Intended use |
+| --- | --- | --- |
+| **OffPay-1.0.5-release.apk** | Optional opt-in in Settings; only checks incoming messages during an active payment, never the inbox | Phones that permit SMS access; payments also work when it is denied |
+| **OffPay-1.0.5-compat.apk** | SMS permission and receiver omitted entirely; outcomes checked with the bank | Phones/installers that restrict SMS-capable sideloaded apps |
 
-`*99#` USSD does not work on Jio. USSD rides the legacy GSM signalling channel, and Jio is an all-IP (VoLTE) network that never carried it — which is precisely the gap NPCI built UPI 123Pay to close.
+The editions share the same package, version code and signing certificate. Install one edition; switching between them replaces the installed edition without creating a second app. The About page identifies the installed edition.
 
-So OffPay ships both. Jio users get the full offline payment experience through the 123Pay IVR rail, with nothing removed and no feature compromise; the USSD rail serves the operators where it does work. Using two rails instead of one is what makes "payments without internet" true for every Indian SIM rather than most of them.
+The owner reported a **Play Protect “Harmful app blocked”** warning on an earlier APK. Its specific cause has not been established. Permission changes do not constitute Google approval, and either APK may still require review. Do not disable device protections to install an APK that remains flagged. [Review evidence and Google's appeal channel](docs/PLAY_PROTECT_REVIEW.md).
 
-Both rails work without internet. Both are usable today on any Indian SIM with any UPI-linked bank account. No registration with OffPay, no server, no account creation.
+## Requirements and practical limits
 
-**OffPay uses no accessibility service** — it cannot read your screen or any other app. It never sees your UPI PIN, which is entered directly into your bank's IVR/dialer flow; the app only triggers the dialer and reads bank-confirmation SMS locally on the device.
+- Android 10 (API 29) or later, with a working phone/dialer service for payments.
+- A compatible Indian SIM and bank account configured for the selected offline service.
+- Bank and carrier support for the chosen rail. `*99#` availability varies; Jio users must use a supported alternative such as their bank's IVR service.
 
-## Prerequisites
+Bank menus, service numbers, DTMF timing and handset behaviour can change. OffPay's setup checks require the user to confirm what their bank actually displayed or said. The bank directory is not a list of banks physically tested with this APK. No universal phone, bank or payment-success guarantee is made.
 
-To actually run a transaction end-to-end you need:
+## Privacy and architecture
 
-- An Android device running **Android 10 (API 29)** or higher
-- An **Indian SIM** in slot 1 (with dual-SIM support optional)
-- A **bank account linked to UPI** via the standard issuer process — same as any UPI app
+The app has no backend, analytics or `INTERNET` permission. Transaction history stays in an encrypted local database and is excluded from cloud backup. SMS confirmation, when enabled and permitted, is limited to active payment windows. The compatibility edition has no SMS access.
 
-## Why it was built
+The main components are:
 
-The starting question was simple: why do UPI payments fail in low-signal areas, and why does the smartphone UX collapse the moment internet drops out?
+- `managers/PaymentDialer.kt`: permission-aware call or dialer handoff.
+- `managers/SmsConfirmation.kt`: optional SMS capability check.
+- `payment/PaymentSessionManager.kt`: bank-confirmed or explicitly unverified payment states.
+- `data/OfflineBankCatalog.kt`: shared searchable bank directory.
+- `features/qr_scanner/`: CameraX/ZXing scanning and Android photo-picker import.
+- `ui/components/GlassButton.kt`: reusable glass surfaces and accessible spring press feedback.
 
-The official failure metrics — the publicly reported ~0.7–0.8% technical decline rate — count only transactions that reached a switch and got rejected. They don't count the much larger population: transactions that never initiated because the app couldn't reach the network. That invisible failure population is the actual problem worth solving.
-
-UPI Lite, UPI Lite X, and 123Pay exist on paper as offline rails. In practice, Lite is a wallet (debit-only, no merchant flows for most use cases), Lite X is NFC-only and not meaningfully deployed at consumer scale, and 123Pay's IVR flow is unusable when you're holding a smartphone — nobody listens to voice menus when they could tap a button.
-
-OffPay brings these existing offline rails together behind a single smartphone-native UI, so paying without internet is something a user can actually do.
-
-## Engineering notes
-
-Telco-era rails don't give you much to work with. Here's what OffPay had to solve:
-
-**USSD is slow by design.** Each `*99#` interaction is a synchronous menu walk over GSM signalling — round trips take roughly a minute, and the menus aren't built for programmatic traversal, so the flow accounts for telco session timeouts and rate limits.
-
-**123Pay's IVR was built for feature phones.** It expects a user holding a phone to their ear, so OffPay wraps the dialer hand-off with an on-screen guide to keep the experience coherent on a smartphone.
-
-**The rails don't expose a clean transaction lifecycle.** Neither flow hands the app a reliable success/failure callback, so OffPay infers the outcome from the bank's confirmation SMS rather than from call state alone.
-
-
-## Reading the code
-
-```
-app/src/main/java/com/offpay/app/
-├── OffPayApplication.kt        # process entry; owns AppContainer
-├── MainActivity.kt              # home screen (Compose), entry to all payment flows
-├── SetupActivity.kt             # first-run setup: bank, primary SIM, disclaimer
-├── TestConfigurationActivity.kt # post-setup connectivity test
-├── payment/                     # ← the money path
-│   ├── PaymentSessionManager.kt # payment lifecycle; the only writer of PaymentState
-│   ├── PaymentWindowObserver.kt # closes the SMS window when a payment is cancelled
-│   ├── Upi123CallStringBuilder.kt # builds + validates the 123Pay DTMF string
-│   ├── InvalidReasonMessages.kt # maps a rejection Reason to user-facing copy
-│   └── sms/SmsTransactionParser.kt # bank-SMS parsing (pure, Context-free)
-├── receivers/
-│   ├── SimpleSMSReceiver.kt     # priority-999 SMS broadcast receiver (PDU extraction)
-│   ├── SmsIngestionPipeline.kt  # shared SMS → transaction pipeline
-│   └── PaymentResultNotifier.kt # guaranteed-reachable outcome notification
-├── helpers/
-│   ├── TransactionDetector.kt   # SMS operation window + dedup
-│   ├── MainActivityHelper.kt    # transfer orchestration + permission gating
-│   └── SetupHelper.kt           # carrier capability + setup state
-├── telephony/CallStateCoordinator.kt # single telephony listener for the app
-├── managers/
-│   ├── CallManager.kt           # places the dial, monitors call state, restores audio
-│   └── PermissionManager.kt     # runtime-permission helper
-├── services/
-│   └── CallOverlayService.kt    # 40s on-call confirmation overlay
-├── features/qr_scanner/         # CameraX + ZXing QR scanner
-├── data/                        # Room entities + DAO, SQLCipher key management
-├── repository/                  # local-only transaction persistence
-├── states/PaymentState.kt       # the payment state machine
-├── di/AppContainer.kt           # hand-rolled DI container
-├── viewmodel/                   # Compose-facing state holders
-├── constants/                   # app-wide constants
-├── utils/CurrencyFormat.kt      # the one place a rupee amount is grouped
-└── ui/                          # remaining Compose screens (transactions, settings, …)
-```
-
-The pieces worth reading if you're poking around:
-
-- **`payment/sms/SmsTransactionParser.kt`** — the bank-SMS parser. The hardest part of the project; every bank's receipt format is different, and it decides whether a payment is reported as succeeded or failed. Pure and Context-free, so it is directly unit-testable.
-- **`payment/PaymentSessionManager.kt`** + **`receivers/SmsIngestionPipeline.kt`** — the payment lifecycle and the path from a received SMS to a stored outcome. Between them they own every rule about what gets recorded.
-- **`helpers/TransactionDetector.kt`** — the SharedPreferences-backed operation window that gates *when* incoming SMS may be inspected at all, plus cross-pipeline dedup. It delegates all message matching to the parser above.
-- **`managers/CallManager.kt`** — handles the dialer interaction for both rails, including call-state monitoring and the timeout/retry logic that ended up being most of the complexity.
-- **`services/CallOverlayService.kt`** — the floating overlay shown during a call so the user has a UI anchor instead of just the system dialer.
-- **`AndroidManifest.xml`** — the permission set is deliberately small and payment-scoped: phone (call + phone state + answer, for the overlay's End-call button), SMS, camera, contacts, overlay, notifications, plus vibrate and modify-audio-settings. No location, no storage, and — notably — **no INTERNET permission**.
-
-## Stack
-
-- **Kotlin 2.1**, Jetpack Compose (Material 3)
-- **Min SDK 29** (Android 10), **target/compile SDK 35**
-- **Local-only persistence** in SQLite via Room
-- **QR scanning** via ZXing (`com.google.zxing:core`, Apache-2.0) + CameraX
-- No backend, no analytics, no telemetry, no third-party SDKs that talk to the internet
+Kotlin 2.1, Jetpack Compose Material 3, Room/SQLCipher, min SDK 29 and target/compile SDK 35. See [architecture](docs/ARCHITECTURE.md) and [testing](docs/TESTING.md) for implementation details and the retained SMS regression tests.
 
 ## Running it
 
@@ -132,7 +63,7 @@ echo "sdk.dir=$ANDROID_HOME" > local.properties
 
 That's it. The build is self-contained — every dependency comes from public Maven repos.
 
-First launch routes through Setup → connectivity test → home screen. Setup automatically opens Android permission requests for Phone, Camera, incoming SMS confirmations, and Contacts once. Users can decline and grant permissions later in Settings. SMS inbox access is not requested.
+First launch routes through Setup → connectivity test → home screen. Setup offers optional Phone, Camera and Contacts requests once. SMS confirmation is an explicit Settings opt-in in the SMS edition. Denials do not block payment handoff; SMS inbox access is never requested.
 
 Use **Settings → Appearance → Dark mode** to switch between dark and light backgrounds. The choice applies immediately and is saved across launches.
 
@@ -140,7 +71,9 @@ If you want to skim the code without running it, the build also works without an
 
 **Signed release build:** copy `keystore.properties.example` to `keystore.properties`, fill in your signing-key details, then run `./gradlew assembleRelease`. The `keystore.properties` file and any `*.jks`/`*.keystore` files are gitignored, so signing material is never committed. Without a keystore, `assembleRelease` stops rather than handing you an unsigned, uninstallable APK — pass `-PallowUnsigned` if that's what you actually want.
 
-**Android app:** we'll be sharing an updated version of OffPay on [GitHub Releases](https://github.com/soumyadippal04/OffPay/releases). In the meantime, you can build from source using the steps above.
+**Compatibility edition:** run `./gradlew assembleCompat` with the same signing configuration. Its merged manifest excludes SMS and notification permissions and the SMS receiver. `-PallowUnsigned` is supported for both release variants when signing is performed separately.
+
+Published APKs and checksums are linked from [GitHub Releases](https://github.com/soumyadippal04/OffPay/releases). Device and Play Protect verification status is stated in each release.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for code style and PR conventions, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the system fits together, [docs/FAQ.md](docs/FAQ.md) for the trust/permissions questions, [docs/TESTING.md](docs/TESTING.md) for how outcomes are verified, [SECURITY.md](SECURITY.md) for vulnerability disclosure, [CHANGELOG.md](CHANGELOG.md) for release history, [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards, and [LEGAL.md](LEGAL.md) for the full terms.
 

@@ -10,10 +10,8 @@ package com.offpay.app
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -21,13 +19,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,8 +46,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.ArrowOutward
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PermContactCalendar
@@ -86,7 +79,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -95,7 +87,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -103,11 +94,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.offpay.app.constants.AppConstants
-import com.offpay.app.constants.PermissionConstants
+import com.offpay.app.data.OfflineBankCatalog
 import com.offpay.app.data.PaymentDetails
 import com.offpay.app.data.PaymentStatus
 import com.offpay.app.data.TestResultsManager
@@ -117,9 +107,12 @@ import com.offpay.app.payment.Upi123CallStringBuilder
 import com.offpay.app.payment.messageFor
 import com.offpay.app.ui.activities.SettingsActivity
 import com.offpay.app.ui.activities.TransactionHistoryActivity
+import com.offpay.app.ui.activities.statusLabelRes
+import com.offpay.app.ui.components.BankConfirmationNote
 import com.offpay.app.ui.components.CreatorCredit
+import com.offpay.app.ui.components.GlassActionButton
 import com.offpay.app.ui.components.TransactionDetailDialog
-import com.offpay.app.ui.components.glassButtonSurface
+import com.offpay.app.ui.components.glassButton
 import com.offpay.app.ui.dialogs.ContactPickerDialog
 import com.offpay.app.ui.theme.BlueAccentTheme
 import com.offpay.app.ui.theme.LocalOffPayAccentTheme
@@ -163,33 +156,6 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         mainViewModel.onQrScannerClosed()
-    }
-
-    // Launches the system "draw over other apps" settings screen; on return,
-    // re-checks the permission and reports the outcome via toast (there is
-    // no reliable resultCode for this settings screen, so re-checking is
-    // the only correct way to know what happened).
-    private val overlayPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        val granted = PermissionManager.canDrawOverlays(this)
-        val message = if (granted) {
-            "Overlay permission granted. You can now proceed with the transfer."
-        } else {
-            "Overlay permission is required for payment protection. Please enable it in Settings."
-        }
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    // Phone-call permission group, requested before dialing or QR scanning.
-    // There is no auto-retry: the user re-taps the action once granted.
-    private val phonePermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        val granted = results.values.all { it }
-        if (!granted) {
-            Toast.makeText(this, R.string.error_permissions_denied, Toast.LENGTH_SHORT).show()
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -240,16 +206,8 @@ class MainActivity : ComponentActivity() {
                     finish()
                 }
 
-                override fun showOverlayPermissionExplanation() {
-                    mainViewModel.onOverlayPermissionNeeded()
-                }
-
                 override fun launchQRScanner(intent: Intent) {
                     qrScannerLauncher.launch(intent)
-                }
-
-                override fun requestPhonePermissions() {
-                    phonePermissionLauncher.launch(PermissionConstants.PHONE_PERMISSIONS)
                 }
             }
         )
@@ -290,11 +248,6 @@ class MainActivity : ComponentActivity() {
                         },
                         onQRScanClick = {
                             helper.startQRScanning()
-                        },
-                        onRequestOverlayPermission = {
-                            PermissionManager(this).overlayPermissionSettingsIntent()?.let {
-                                overlayPermissionLauncher.launch(it)
-                            }
                         }
                     )
                 }
@@ -357,92 +310,21 @@ private fun ScanQrButton(
     isUssdReady: Boolean,
     isScanning: Boolean
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isQRPressed by interactionSource.collectIsPressedAsState()
-    val qrButtonScale by animateFloatAsState(
-        targetValue = if (isQRPressed) 0.97f else 1f,
-        animationSpec = tween(durationMillis = 200),
-        label = "QR Button Scale"
+    GlassActionButton(
+        label = when {
+            !isUssdReady -> stringResource(R.string.home_setup_ussd)
+            isScanning -> stringResource(R.string.home_scan_opening)
+            else -> stringResource(R.string.home_scan_qr)
+        },
+        icon = when {
+            !isUssdReady -> Icons.Default.Lock
+            isScanning -> Icons.Default.QrCode
+            else -> Icons.Default.QrCodeScanner
+        },
+        enabled = !isScanning,
+        vibrant = isUssdReady,
+        onClick = onQRScanClick
     )
-    // Scan QR Button
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(70.dp)
-                .scale(qrButtonScale)
-                .glassButtonSurface(shape = CircleShape, enabled = isUssdReady)
-                .clickable(
-                    enabled = !isScanning,
-                    role = Role.Button,
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current,
-                    onClick = onQRScanClick
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = when {
-                    !isUssdReady -> Icons.Default.Lock
-                    isScanning -> Icons.Default.QrCode
-                    else -> Icons.Default.QrCodeScanner
-                },
-                contentDescription = stringResource(
-                    if (isUssdReady) R.string.home_scan_qr else R.string.home_setup_ussd
-                ),
-                tint = if (isUssdReady) OffPayOnGradient else OffPayTextLightGray,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-
-        Text(
-            text = when {
-                !isUssdReady -> stringResource(R.string.home_setup_ussd)
-                isScanning -> stringResource(R.string.home_scan_opening)
-                else -> stringResource(R.string.home_scan_qr)
-            },
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = OffPayTextWhite,
-            textAlign = TextAlign.Center
-        )
-    }
-
-    // OR Divider
-    Row(
-        modifier = Modifier.padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .width(50.dp)
-                .height(1.dp)
-                .background(MaterialTheme.colorScheme.outlineVariant)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-                .padding(horizontal = 10.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = "OR",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color = OffPayTextWhite.copy(alpha = 0.8f)
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Box(
-            modifier = Modifier
-                .width(50.dp)
-                .height(1.dp)
-                .background(MaterialTheme.colorScheme.outlineVariant)
-        )
-    }
 }
 
 /** Pay Contact — locked until the UPI 123 IVR connectivity test has passed. */
@@ -451,59 +333,19 @@ private fun PayContactButton(
     onPayContactClick: () -> Unit,
     isUpi123Ready: Boolean
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPayPressed by interactionSource.collectIsPressedAsState()
-    val payButtonScale by animateFloatAsState(
-        targetValue = if (isPayPressed) 0.97f else 1f,
-        animationSpec = tween(durationMillis = 200),
-        label = "Pay Button Scale"
+    GlassActionButton(
+        label = stringResource(if (isUpi123Ready) R.string.home_pay_contact else R.string.home_setup_upi123),
+        icon = if (isUpi123Ready) Icons.Default.Person else Icons.Default.Lock,
+        vibrant = isUpi123Ready,
+        onClick = onPayContactClick
     )
-    // Pay Contact Button — inactive until the UPI 123 IVR test has
-    // passed; in that state it prompts for setup and tapping it opens
-    // the *99# / UPI 123 test screen.
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(70.dp)
-                .scale(payButtonScale)
-                .glassButtonSurface(shape = RoundedCornerShape(20.dp), enabled = isUpi123Ready)
-                .clickable(
-                    role = Role.Button,
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current,
-                    onClick = onPayContactClick
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = if (isUpi123Ready) Icons.Default.Person else Icons.Default.Lock,
-                contentDescription = stringResource(
-                    if (isUpi123Ready) R.string.home_pay_contact else R.string.home_setup_upi123
-                ),
-                tint = if (isUpi123Ready) OffPayOnGradient else OffPayTextLightGray,
-                modifier = Modifier.size(32.dp)
-            )
-        }
-
-        Text(
-            text = stringResource(if (isUpi123Ready) R.string.home_pay_contact else R.string.home_setup_upi123),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = OffPayTextWhite,
-            textAlign = TextAlign.Center
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     onInitiateTransfer: (String, String) -> Unit,
-    onQRScanClick: () -> Unit,
-    onRequestOverlayPermission: () -> Unit
+    onQRScanClick: () -> Unit
 ) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences(AppConstants.PREFS_NAME, Context.MODE_PRIVATE)
@@ -548,59 +390,6 @@ fun MainScreen(
     var showPayContact by remember { mutableStateOf(false) }
     var isScanning by remember { mutableStateOf(false) }
 
-    var showSmsPermissionDialog by remember { mutableStateOf(false) }
-    var pendingSmsAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-    var showOverlayPermissionDialog by remember { mutableStateOf(false) }
-    val hostActivity = remember(context) { context.findComponentActivity() }
-    val permissionManager = remember(hostActivity) {
-        hostActivity?.let { PermissionManager(it) }
-    }
-
-    // Runs the queued action (start scan / open pay dialog / initiate transfer)
-    // once RECEIVE_SMS is granted; the launcher stays Compose-scoped so no
-    // Activity-level callback bridge is needed.
-    val smsPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            pendingSmsAction?.invoke()
-        } else {
-            Toast.makeText(
-                context,
-                "SMS permission is required to detect payment confirmations",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-        pendingSmsAction = null
-    }
-
-    // POST_NOTIFICATIONS backs the payment-outcome notification — the
-    // fallback the result screen relies on when its direct background launch
-    // is blocked (see PaymentResultNotifier). It is best-effort, not a
-    // prerequisite, so we ask ONCE at the first payment and never block on the
-    // result: the payment proceeds whether granted or not. Settings offers a
-    // later toggle for anyone who declines.
-    val postNotificationsLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { /* best-effort: outcome recorded by the OS; nothing to do here */ }
-    val maybeAskNotifications = remember(context) {
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val alreadyAsked = sharedPreferences.getBoolean(AppConstants.KEY_NOTIFICATIONS_ASKED, false)
-                val granted = ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-                if (!alreadyAsked && !granted) {
-                    sharedPreferences.edit()
-                        .putBoolean(AppConstants.KEY_NOTIFICATIONS_ASKED, true)
-                        .apply()
-                    postNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        }
-    }
-
     // One-shot events from MainActivity (launchers + business-logic helper),
     // replacing the former static @Volatile callbacks on its companion.
     val mainViewModel: MainViewModel = viewModel()
@@ -608,7 +397,6 @@ fun MainScreen(
         mainViewModel.events.collect { event ->
             when (event) {
                 MainUiEvent.QrScannerClosed -> isScanning = false
-                MainUiEvent.OverlayPermissionNeeded -> showOverlayPermissionDialog = true
             }
         }
     }
@@ -631,19 +419,8 @@ fun MainScreen(
         }
     }
 
-    val selectedBankName = when (savedBank) {
-        "sbi" -> "State Bank of India"
-        "hdfc" -> "HDFC Bank"
-        "icici" -> "ICICI Bank"
-        "axis" -> "Axis Bank"
-        "kotak" -> "Kotak Mahindra Bank"
-        "pnb" -> "Punjab National Bank"
-        "bob" -> "Bank of Baroda"
-        "yes" -> "Yes Bank"
-        "idbi" -> "IDBI Bank"
-        "canara" -> "Canara Bank"
-        else -> "HDFC Bank"
-    }
+    val selectedBankName = OfflineBankCatalog.nameFor(savedBank)
+        ?: stringResource(R.string.compatibility_choose_bank)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -813,58 +590,18 @@ fun MainScreen(
 
                 PaymentActionButtons(
                     onQRScanClick = {
-                        maybeAskNotifications()
-                        val hasSms = ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.RECEIVE_SMS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        when {
-                            // *99# not verified yet — the button is in its
-                            // "Set up *99#" state; take the user to the test
-                            // screen rather than opening a scanner whose
-                            // payment rail has not been shown to work.
-                            !isUssdReady -> {
-                                context.startActivity(
-                                    Intent(context, TestConfigurationActivity::class.java)
-                                )
-                            }
-                            !hasSms -> {
-                                pendingSmsAction = {
-                                    isScanning = true
-                                    onQRScanClick()
-                                }
-                                showSmsPermissionDialog = true
-                            }
-                            else -> {
-                                isScanning = true
-                                onQRScanClick()
-                            }
+                        if (!isUssdReady) {
+                            context.startActivity(Intent(context, TestConfigurationActivity::class.java))
+                        } else {
+                            isScanning = true
+                            onQRScanClick()
                         }
                     },
                     onPayContactClick = {
-                        maybeAskNotifications()
-                        val hasSms = ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.RECEIVE_SMS
-                        ) == PackageManager.PERMISSION_GRANTED
-                        when {
-                            // UPI 123 IVR not verified yet — the button is in its
-                            // "Set up UPI 123 IVR" state; take the user to the
-                            // *99# / UPI 123 test screen instead of the pay dialog.
-                            !isUpi123Ready -> {
-                                context.startActivity(
-                                    Intent(context, TestConfigurationActivity::class.java)
-                                )
-                            }
-                            // Overlay permission is required before the payment
-                            // call can show its UI, so ask now — not after the
-                            // user has filled in the transfer details.
-                            !PermissionManager.canDrawOverlays(context) -> {
-                                showOverlayPermissionDialog = true
-                            }
-                            !hasSms -> {
-                                pendingSmsAction = { showPayContact = true }
-                                showSmsPermissionDialog = true
-                            }
-                            else -> showPayContact = true
+                        if (!isUpi123Ready) {
+                            context.startActivity(Intent(context, TestConfigurationActivity::class.java))
+                        } else {
+                            showPayContact = true
                         }
                     },
                     isUpi123Ready = isUpi123Ready,
@@ -872,7 +609,7 @@ fun MainScreen(
                     isScanning = isScanning
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                BankConfirmationNote()
 
                 // Recent Transactions
                 Card(
@@ -1066,48 +803,8 @@ fun MainScreen(
                 PayContactDialog(
                     onDismiss = { showPayContact = false },
                     onConfirm = { phone, amt ->
-                        if (permissionManager?.checkSMSPermissions() != true) {
-                            pendingSmsAction = {
-                                showPayContact = false
-                                onInitiateTransfer(phone, amt)
-                            }
-                            showSmsPermissionDialog = true
-                        } else {
-                            showPayContact = false
-                            onInitiateTransfer(phone, amt)
-                        }
-                    }
-                )
-            }
-
-            if (showOverlayPermissionDialog) {
-                PermissionExplanationDialog(
-                    title = "Overlay Permission",
-                    message = "OffPay needs overlay permission to show a payment UI anchor during the call. This keeps your transaction details visible while the call is in progress.",
-                    confirmButtonText = "Grant",
-                    onConfirm = {
-                        showOverlayPermissionDialog = false
-                        onRequestOverlayPermission()
-                    },
-                    onDismiss = { showOverlayPermissionDialog = false }
-                )
-            }
-
-            if (showSmsPermissionDialog) {
-                PermissionExplanationDialog(
-                    title = "SMS Permission",
-                    message = "OffPay reads incoming bank SMS only while a payment is in progress, to detect the confirmation. It never reads your inbox and nothing leaves the device.",
-                    confirmButtonText = "Grant",
-                    onConfirm = {
-                        showSmsPermissionDialog = false
-                        // Only RECEIVE_SMS is declared in the manifest and
-                        // needed (the app never reads the inbox). The launcher's
-                        // callback runs pendingSmsAction once granted.
-                        smsPermissionLauncher.launch(Manifest.permission.RECEIVE_SMS)
-                    },
-                    onDismiss = {
-                        showSmsPermissionDialog = false
-                        pendingSmsAction = null
+                        showPayContact = false
+                        onInitiateTransfer(phone, amt)
                     }
                 )
             }
@@ -1120,7 +817,7 @@ fun TransactionItem(payment: PaymentDetails, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
+            .heightIn(min = 90.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = OffPaySurfaceDim),
@@ -1128,7 +825,7 @@ fun TransactionItem(payment: PaymentDetails, onClick: () -> Unit) {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -1164,36 +861,29 @@ fun TransactionItem(payment: PaymentDetails, onClick: () -> Unit) {
 }
 
 @Composable
-private fun TransactionItemAmount(amount: Double, status: PaymentStatus) {
-    // FAILED and CANCELLED read as "this payment did not go through" — a
-    // cross, not the same outgoing arrow a successful payment gets. Every
-    // other outcome (COMPLETED, PENDING, NEEDS_REVIEW, UNVERIFIED) keeps the
-    // arrow: this row has no separate status chip (unlike transaction
-    // history), so the icon is the only signal here.
-    val failed = status == PaymentStatus.FAILED || status == PaymentStatus.CANCELLED
-    val tint = if (failed) OffPayStatusError else LocalOffPayAccentTheme.current.headerGradientStart
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End,
-        modifier = Modifier.padding(start = 8.dp)
+private fun TransactionItemAmount(amount: Double?, status: PaymentStatus) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        modifier = Modifier.padding(start = 8.dp).widthIn(max = 150.dp)
     ) {
         Text(
-            text = stringResource(R.string.amount_rupees, CurrencyFormat.inr(amount)),
+            text = if (amount == null) {
+                stringResource(R.string.payment_amount_not_entered)
+            } else {
+                stringResource(R.string.amount_rupees, CurrencyFormat.inr(amount))
+            },
             fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = LocalOffPayAccentTheme.current.headerGradientStart,
-            maxLines = 1,
+            fontWeight = FontWeight.SemiBold,
+            color = OffPayTextWhite,
+            maxLines = 2,
+            textAlign = TextAlign.End,
             overflow = TextOverflow.Ellipsis
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Icon(
-            imageVector = if (failed) Icons.Default.Close else Icons.Default.ArrowOutward,
-            contentDescription = stringResource(
-                if (failed) R.string.cd_payment_failed else R.string.cd_payment_outgoing
-            ),
-            modifier = Modifier.size(18.dp),
-            tint = tint
+        Text(
+            text = stringResource(statusLabelRes(status.name)),
+            modifier = Modifier.padding(top = 4.dp),
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -1358,6 +1048,12 @@ fun PayContactDialog(
                     )
                 )
 
+                Text(
+                    text = stringResource(R.string.compatibility_check_bank),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+
                 // Told here, in the dialog, while the number can still be
                 // corrected. The IVR itself only rejects an over-cap amount
                 // mid-call, after the user has already dialled.
@@ -1374,17 +1070,17 @@ fun PayContactDialog(
         confirmButton = {
             val canTransfer = phoneNumber.length == 10 && amount.isNotEmpty() &&
                 amount != "0" && !isOverCap
-            TextButton(
-                onClick = { onConfirm(phoneNumber, amount) },
-                enabled = canTransfer
+            Box(
+                modifier = Modifier
+                    .heightIn(min = 48.dp)
+                    .glassButton(enabled = canTransfer) { onConfirm(phoneNumber, amount) }
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    stringResource(R.string.action_transfer),
-                    color = if (canTransfer) {
-                        LocalOffPayAccentTheme.current.accent
-                    } else {
-                        OffPayTextGray
-                    }
+                    text = stringResource(R.string.compatibility_continue_dialer),
+                    color = if (canTransfer) OffPayOnGradient else OffPayTextGray,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         },

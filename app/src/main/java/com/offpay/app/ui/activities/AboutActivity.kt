@@ -188,5 +188,16 @@ private fun AboutDetails() {
                 fontWeight = FontWeight.Medium
             )
         }
+        Text(
+            text = stringResource(
+                if (BuildConfig.SMS_CONFIRMATION_AVAILABLE) {
+                    R.string.optional_sms_edition
+                } else {
+                    R.string.optional_sms_compatibility_edition
+                }
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

@@ -50,7 +50,7 @@ data class Transaction(
             id = transactionId,
             recipientName = recipientName,
             phoneNumber = phoneNumber ?: "",
-            amount = amount.toDoubleOrNull() ?: 0.0,
+            amount = amount.toDoubleOrNull()?.takeIf { it.isFinite() },
             timestamp = timestamp,
             status = when (status.uppercase()) {
                 "SUCCESS", "SUCCESSFUL", "COMPLETED" -> PaymentStatus.COMPLETED

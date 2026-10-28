@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bank_picker_title">Choose your bank</string>
+    <string name="bank_picker_close">Close bank selection</string>
+    <string name="bank_picker_search">Search banks</string>
+    <string name="bank_picker_clear_search">Clear bank search</string>
+    <string name="bank_picker_availability_note">Offline payment availability varies by bank, SIM and service. Check your bank\'s available options before paying.</string>
+    <string name="bank_picker_no_results">No banks found</string>
+    <string name="bank_picker_search_hint">Try a different bank name or abbreviation.</string>
+    <string name="bank_picker_change">Change bank</string>
+</resources>

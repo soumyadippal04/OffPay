@@ -115,8 +115,12 @@ fun TransactionDetailDialog(
 
                 // Large amount
                 Text(
-                    text = stringResource(R.string.amount_rupees, CurrencyFormat.inr(transaction.amount)),
-                    fontSize = 32.sp,
+                    text = if (transaction.amount.toBigDecimalOrNull() == null) {
+                        stringResource(R.string.payment_amount_not_entered)
+                    } else {
+                        stringResource(R.string.amount_rupees, CurrencyFormat.inr(transaction.amount))
+                    },
+                    fontSize = if (transaction.amount.toBigDecimalOrNull() == null) 18.sp else 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = accent.headerGradientStart,
                     textAlign = TextAlign.Center

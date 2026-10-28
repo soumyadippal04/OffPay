@@ -54,9 +54,7 @@ class OffPayApplication : Application() {
         // dead. The store resolves lazily on IO (see LazyTransactionStore),
         // so this no longer opens the database on the main thread.
         paymentSessionManager.reconcileStalePending()
-        // Close the SMS operation window on cancellation from the process
-        // scope, so it still happens after the overlay service has stopped.
-        container.paymentWindowObserver.start()
+        if (BuildConfig.SMS_CONFIRMATION_AVAILABLE) container.paymentWindowObserver.start()
         Log.d(TAG, "OffPayApplication initialized")
     }
 }

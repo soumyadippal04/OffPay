@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="compatibility_choose_bank">Choose your bank</string>
+    <string name="compatibility_confirmation_title">Your bank confirms the payment</string>
+    <string name="compatibility_check_bank">Complete the payment in the dialer. Opening it is not proof of payment: check your bank\'s confirmation before paying again.</string>
+    <string name="compatibility_confirmation_summary">OffPay does not read SMS or appear over other apps. Payment attempts stay Unverified until you check with your bank.</string>
+    <string name="compatibility_continue_dialer">Continue to dialer</string>
+</resources>

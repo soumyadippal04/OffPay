@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_optional_permissions">OPTIONAL PERMISSIONS</string>
+    <string name="settings_phone_permission">Phone</string>
+    <string name="settings_phone_permission_detail">Place payment calls directly. You can also continue using your phone\'s dialer.</string>
+    <string name="settings_camera_permission">Camera</string>
+    <string name="settings_camera_permission_detail">Scan a QR code with your camera. You can choose a QR image from your gallery instead.</string>
+    <string name="settings_contacts_permission">Contacts</string>
+    <string name="settings_contacts_permission_detail">Choose a saved contact to pay. You can enter a phone number manually instead.</string>
+    <string name="settings_permission_allowed">Allowed</string>
+    <string name="settings_permission_allow">Allow</string>
+    <string name="settings_bank_confirmation">Bank confirmation</string>
+    <string name="settings_bank_confirmation_detail">This edition does not access SMS. Payment attempts remain Unverified in OffPay. Confirm the result in your bank\'s SMS or app before paying again.</string>
+</resources>
